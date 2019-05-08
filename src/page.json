@@ -1,0 +1,80 @@
+{
+    "pages": [
+        {
+            "name": "page1",
+            "title": "Введите свои персональные данные",
+            "elements": [
+                {
+                    "type": "text",
+                    "name": "Фамилия",
+                    "title": "Ваша фамилия:",
+                    "valueName": "Фамилия",
+                    "isRequired": true,
+                    "placeHolder": "Ваша фамилия"
+                },
+                {
+                    "type": "text",
+                    "name": "Имя",
+                    "title": "Ваше имя:",
+                    "valueName": "Имя",
+                    "isRequired": true,
+                    "placeHolder": "Ваше имя"
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "Возраст сим-карты",
+                    "valueName": "Возраст сим-карты",
+                    "isRequired": true,
+                    "choices": [
+                        {
+                            "value": " Больше 3-х месяцев",
+                            "text": "Менее 2-х месяцев"
+                        },
+                        {
+                            "value": "Несколько дней",
+                            "text": "Более двух лет"
+                        },
+                        {
+                            "value": " Более 6 месяцев",
+                            "text": "Более 4 лет"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "page2",
+            "title": "page two",
+            "elements": [
+                {
+                    "type": "text",
+                    "name": "Отчество",
+                    "title": "Ваше отчество:",
+                    "valueName": "Отчество",
+                    "isRequired": true,
+                    "placeHolder": "Ваше отчество"
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "page2",
+                    "valueName": "page2",
+                    "isRequired": true,
+                    "choices": [
+                        {
+                            "value": "1",
+                            "text": "1"
+                        },
+                        {
+                            "value": "2",
+                            "text": "2"
+                        },
+                        {
+                            "value": "3",
+                            "text": "3"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
