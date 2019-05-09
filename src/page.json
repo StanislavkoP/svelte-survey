@@ -21,6 +21,44 @@
                     "placeHolder": "Ваше имя"
                 },
                 {
+                    "type": "text",
+                    "name": "Отчество",
+                    "title": "Ваше отчество:",
+                    "valueName": "Имя",
+                    "isRequired": true,
+                    "placeHolder": "Ваше отчество"
+                },
+                {
+                    "type": "date",
+                    "name": "Дата рождения",
+                    "title": "Дата рождения:",
+                    "valueName": "Дата рождения",
+                    "isRequired": true,
+                    "placeHolder": "Дата рождения"
+                },
+                {
+                    "type": "tel",
+                    "name": "Телефон",
+                    "title": "Ваш телефон:",
+                    "valueName": "Телефон",
+                    "isRequired": true,
+                    "placeHolder": "Ваш телефон"
+                },
+                {
+                    "type": "email",
+                    "name": "Почта",
+                    "title": "Электронная почта:",
+                    "valueName": "Почта",
+                    "isRequired": true,
+                    "placeHolder": "Электронная почта"
+                }
+            ]
+        },
+        {
+            "name": "page2",
+            "title": "page two",
+            "elements": [
+                {
                     "type": "radiogroup",
                     "name": "Возраст сим-карты",
                     "valueName": "Возраст сим-карты",
@@ -39,13 +77,7 @@
                             "text": "Более 4 лет"
                         }
                     ]
-                }
-            ]
-        },
-        {
-            "name": "page2",
-            "title": "page two",
-            "elements": [
+                },
                 {
                     "type": "text",
                     "name": "Отчество",
@@ -56,8 +88,8 @@
                 },
                 {
                     "type": "radiogroup",
-                    "name": "page2",
-                    "valueName": "page2",
+                    "name": "123",
+                    "valueName": "123",
                     "isRequired": true,
                     "choices": [
                         {
