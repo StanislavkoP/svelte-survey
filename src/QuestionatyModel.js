@@ -5,10 +5,10 @@ export class Questionary {
         this.amountPages = config.pages.length || 0;
         this.currentPageNum = 1;
         this.currentPage = config.pages[this.currentPageNum - 1];
-        this.addItionalАields()
+        this.addAdditionalFields()
     }
     
-    addItionalАields() {
+    addAdditionalFields() {
         const modifiedPages = this.config.pages.map((page, index) => {
 
             const modifiedElements = page.elements.map(element => ({
