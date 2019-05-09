@@ -17,4 +17,10 @@
 </script>
 
 
+<style>
+    :global(body) {
+        font-family: 'Roboto', sans-serif;
+    }
+</style>
+
 <QuestionaryComponent survey={surveyConfig}/>

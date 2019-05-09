@@ -9,7 +9,7 @@
     let page = null;
 
     let initialized = false;
-    let progress = tweened(1, {
+    let progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
     });
@@ -37,15 +37,49 @@
 </script>
 
 <style>
+    .survey {
+        font-size: 18px;
+        line-height: 1.72;
+    }
+
+    .survey *{
+        box-sizing: border-box;
+    }
+
     .progress__bar {
         height : 10px;
-        width: 300px;
+        background-color: rgba(0, 0, 0, 0.1)
     }
 
     .progress__bar-line {
         height : 100%;
-        background-color: black;
+        background-color: #4570FF;
     }
+
+    .survey__bottom {
+        margin-top: 20px;
+    }
+    
+
+    .btn {
+        background-color: transparent;
+        margin: 0;
+        padding: 12px;
+        border-color: #4570FF;
+        color: #4570FF;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #4570FF;
+        color: white;
+    }
+
+    .survey__bottom {
+        display: flex;
+        justify-content: center;
+    }
+    
 </style>
 
 
@@ -70,8 +104,8 @@
 
         <Page page={survey.currentPage} />
         <div class="survey__bottom">
-            <button on:click={onPrevPage}>Prev page</button>
-            <button on:click={onNextPage}>Next page</button>
+            <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
+            <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
         </div>
     </div>
 {/if}
