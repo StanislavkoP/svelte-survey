@@ -15,18 +15,30 @@ module.exports = {
 		filename: '[name].js',
 		chunkFilename: '[name].[id].js'
 	},
+
 	module: {
 		rules: [
 			{
+				test: /\.js$/,
+				loader: 'buble-loader',
+				exclude: /node_modules\/(?!svelte)/,
+				options: {
+				  objectAssign: 'Object.assign'
+				}
+			},
+			{
 				test: /\.svelte$/,
 				exclude: /node_modules/,
-				use: {
+				use: [
+					{
 					loader: 'svelte-loader',
 					options: {
 						emitCss: true,
-						hotReload: true
+						hotReload: true,
+						preprocess: require('svelte-preprocess')({ browsers:['ie >= 11', 'last 4 version'] })
 					}
 				}
+				]
 			},
 			{
 				test: /\.css$/,
