@@ -1,9 +1,17 @@
 <script>
+    import { onMount } from 'svelte';
     let page = null;
 
     export {
         page
-    }
+	}
+	
+	
+	onMount(() => {
+        flatpickr('input[type="date"]')
+	});
+	
+
 </script>
 
 <style>
@@ -77,6 +85,17 @@
         width: 100%;
     }
 
+	.question__group-input--text.hasError {
+		border-color: rgba(245, 70, 52, 0.9);
+	} 
+    
+    .question__error {
+        font-size: 14px;
+        padding: 6px;
+        color: white;
+        background-color: rgba(245, 70, 52, 0.9);
+    }
+
 
 </style>
 
@@ -100,7 +119,20 @@
                 {:else}
                     <label class="question__group">
                         <div class="question__group-text">{element.title}</div>
-                        <input class="question__group-input--text" bind:value={element.value} name={element.valueName} placeholder={element.placeHolder}>
+							{#if element.isValid === false}
+                                <div class="question__error">
+                                    <div class="question__error--text">{element.requiredErrorText}</div>
+                                </div>
+                            {/if}
+
+							{#if element.type === 'date'}
+
+                        		<input type="date" class:hasError={element.isValid === false} class="question__group-input--text" bind:value={element.value} name={element.valueName} placeholder={element.placeHolder}>
+
+							{:else}
+                        		<input class:hasError={element.isValid === false} class="question__group-input--text" bind:value={element.value} name={element.valueName} placeholder={element.placeHolder}>
+
+							{/if}
                     </label>
                 {/if}
             </div> 

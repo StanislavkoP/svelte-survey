@@ -22,6 +22,7 @@
     "dev": "webpack-dev-server --content-base public"
   },
   "dependencies": {
+    "flatpickr": "^4.5.7",
     "svero": "^0.4.0"
   }
 }

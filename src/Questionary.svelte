@@ -1,14 +1,12 @@
 <script>
+    import flatpickr from 'flatpickr';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-    import { afterUpdate } from 'svelte';
+    import { onMount } from 'svelte';
     import { Questionary } from './QuestionatyModel.js';
     import Page from './Page.svelte';
 
-    export let survey = null;
-    let page = null;
-
-    let initialized = false;
+    let survey = null;
     let progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -33,6 +31,10 @@
         });
 
         console.log(answers)
+    }
+
+    export {
+        survey
     }
 </script>
 

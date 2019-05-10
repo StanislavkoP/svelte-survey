@@ -10,6 +10,7 @@
                     "title": "Ваша фамилия:",
                     "valueName": "Фамилия",
                     "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите вашу фамилию",
                     "placeHolder": "Ваша фамилия"
                 },
                 {
@@ -18,6 +19,7 @@
                     "title": "Ваше имя:",
                     "valueName": "Имя",
                     "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите ваше имя",
                     "placeHolder": "Ваше имя"
                 },
                 {
@@ -26,6 +28,7 @@
                     "title": "Ваше отчество:",
                     "valueName": "Имя",
                     "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите ваше отчество",
                     "placeHolder": "Ваше отчество"
                 },
                 {
@@ -34,6 +37,7 @@
                     "title": "Дата рождения:",
                     "valueName": "Дата рождения",
                     "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите вашу дату рождения",
                     "placeHolder": "Дата рождения"
                 },
                 {
@@ -41,6 +45,7 @@
                     "name": "Телефон",
                     "title": "Ваш телефон:",
                     "valueName": "Телефон",
+                    "requiredErrorText": "Пожалуйста, введите ваш номер телефона",
                     "isRequired": true,
                     "placeHolder": "Ваш телефон"
                 },
@@ -48,6 +53,7 @@
                     "type": "email",
                     "name": "Почта",
                     "title": "Электронная почта:",
+                    "requiredErrorText": "Пожалуйста, введите вашу электронную почту",
                     "valueName": "Почта",
                     "isRequired": true,
                     "placeHolder": "Электронная почта"

@@ -42,14 +42,41 @@ export class Questionary {
     }
 
     onNextPage() {
-        this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
+        this.checkValidation(this.currentPage);
+        if (this.currentPage.isValid) {
+            this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
+            
+            this.progress = this.recalculateProgress(this.currentPageNum, this.amountPages);
+            
+            
+            return this.setCurrentPage(this.currentPageNum);
         
-        this.progress = this.recalculateProgress(this.currentPageNum, this.amountPages);
+        } else {
+            return this.currentPage
         
-        return this.setCurrentPage(this.currentPageNum);
+        }
+        
     }
 
     recalculateProgress(currentPage, amountPages) {
         return (100 / amountPages * (currentPage - 1));
+    }
+
+    checkValidation(page) {
+        let pageIsValid = true;
+        
+        page.elements.forEach(element => {
+            if (element.isRequired && element.value.trim().length <= 0) {
+                element.isValid = false;
+                pageIsValid = false;
+            
+            } else {
+                element.isValid = true;
+                pageIsValid = pageIsValid && true;
+            
+            }
+        });
+
+        page.isValid = pageIsValid;
     }
 }
