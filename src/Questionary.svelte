@@ -103,7 +103,7 @@
             </div>
         </div>
 
-        <Page  x={1} page={survey.currentPage} />
+        <Page page={survey.currentPage} />
         <div class="survey__bottom">
             <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
             {#if survey.currentPageNum !== survey.amountPages}
