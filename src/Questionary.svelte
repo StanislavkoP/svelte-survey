@@ -1,10 +1,9 @@
 <script>
-    import flatpickr from 'flatpickr';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-    import { onMount } from 'svelte';
     import { Questionary } from './QuestionatyModel.js';
-    import Page from './Page.svelte';
+    import Loader from './Loader'
+    import Page from './Page';
 
     let survey = null;
     let progress = tweened(0, {
@@ -104,10 +103,17 @@
             </div>
         </div>
 
-        <Page page={survey.currentPage} />
+        <Page  x={1} page={survey.currentPage} />
         <div class="survey__bottom">
             <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
-            <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
+            {#if survey.currentPageNum !== survey.amountPages}
+                <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
+            {:else}
+                <button class="btn survey__bottom-btn" on:click={() => alert('finished')}>Закончить</button>
+            {/if}
         </div>
     </div>
+
+{:else}
+    <Loader/>
 {/if}
