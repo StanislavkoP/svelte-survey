@@ -23,4 +23,6 @@
     }
 </style>
 
-<QuestionaryComponent survey={surveyConfig}/>
+<div id="survey">
+    <QuestionaryComponent survey={surveyConfig}/>
+</div>
