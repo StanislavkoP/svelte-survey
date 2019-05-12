@@ -5,7 +5,7 @@ export class Questionary {
         this.amountPages = config.pages.length || 0;
         this.currentPageNum = 1;
         this.currentPage = config.pages[this.currentPageNum - 1];
-        this.addAdditionalFields()
+        this.addAdditionalFields();
     }
     
     addAdditionalFields() {
@@ -19,7 +19,7 @@ export class Questionary {
             return (
                 Object.assign(page, {
                     elements: modifiedElements,
-                    countPage : index + 1
+                    countPage : index + 1,
                 })
             )
             
@@ -30,6 +30,7 @@ export class Questionary {
 
     setCurrentPage(indexPage) {
         this.currentPage = this.config.pages[indexPage - 1];
+        
         return this.currentPage;
     }
 
@@ -43,11 +44,11 @@ export class Questionary {
 
     onNextPage() {
         this.checkValidation(this.currentPage);
+       
         if (this.currentPage.isValid) {
             this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
             
             this.progress = this.recalculateProgress(this.currentPageNum, this.amountPages);
-            
             
             return this.setCurrentPage(this.currentPageNum);
         
@@ -66,15 +67,83 @@ export class Questionary {
         let pageIsValid = true;
         
         page.elements.forEach(element => {
-            if (element.isRequired && element.value.trim().length <= 0) {
-                element.isValid = false;
+            const elementValidRules = element.validators;
+            const inputValue = element.value.trim();
+            const inputValueLength = inputValue.length;
+            let elementIsValid = true;
+            let errorText = '';
+
+            if (element.isRequired && inputValueLength <= 0) {
+                elementIsValid = false;
                 pageIsValid = false;
-            
-            } else {
-                element.isValid = true;
-                pageIsValid = pageIsValid && true;
+                errorText = element.requiredErrorText;
             
             }
+
+            // If input value has characters and validation rules then check input value
+            if ( inputValueLength > 0 && elementValidRules && elementValidRules.length > 0) {
+
+                elementValidRules.forEach(validRule => {
+                    elementIsValid = true;
+                    pageIsValid = pageIsValid && true;
+
+                    if (validRule.type === 'text') {
+
+                        if (inputValue < validRule.minLength || inputValue > validRule.maxLength) {
+                            elementIsValid = false;
+                            pageIsValid = false;
+                            errorText = validRule.text;
+                        }
+
+                        if (!validRule.allowDigits) {
+                            
+                            const isValid = new RegExp("^[^0-9]{1,}$").test(inputValue);
+                            if (!isValid) {
+                                elementIsValid = false;
+                                pageIsValid = false;
+                                errorText = validRule.text;
+                            }
+
+                        }
+                    }
+
+                    if (validRule.type === 'email') {
+                        
+                        const isValid = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i).test(inputValue);
+                        if (!isValid) {
+                            elementIsValid = false;
+                            pageIsValid = false;
+                            errorText = validRule.text;
+                        }
+
+                    }
+
+                    if (validRule.type === 'numeric') {
+                        
+                        const isValid = new RegExp(`^\\d{${validRule.minLength},${validRule.maxLength}}$`).test(inputValue);
+                        if (!isValid) {
+                            elementIsValid = false;
+                            pageIsValid = false;
+                            errorText = validRule.text;
+                        }
+
+                    }
+
+                    if (validRule.type === 'regex') {
+                        
+                        const isValid = new RegExp(validRule.regex).test(inputValue);
+                        if (!isValid) {
+                            elementIsValid = false;
+                            pageIsValid = false;
+                            errorText = validRule.text;
+                        }
+
+                    }
+                })
+            }
+
+            element.isValid = elementIsValid;
+            element.errorText = errorText;
         });
 
         page.isValid = pageIsValid;
