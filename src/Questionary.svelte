@@ -1,4 +1,5 @@
 <script>
+    import { afterUpdate } from 'svelte';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
     import { Questionary } from './QuestionatyModel.js';
@@ -11,13 +12,22 @@
 		easing: cubicOut
     });
 
+    let currentPage = null;
+
+    afterUpdate(() => {
+        console.log('update')
+        if (survey !== null && currentPage === null) currentPage = survey.currentPage;
+    });
+
     function onNextPage () {
-        survey.currentPage = survey.onNextPage();
+        survey.onNextPage();
+        currentPage = survey.currentPage;
         progress.set(survey.progress);
     }
 
     function onPrevPage () {
-        survey.currentPage = survey.onPrevPage();
+        survey.onPrevPage();
+        currentPage = survey.currentPage;
         progress.set(survey.progress);
     }
 
@@ -26,10 +36,9 @@
         let answers = {};
 
         survey.config.pages.map((page, index) => {
-            page.elements.map(element => (Object.assign(answers, {[element.valueName]: element.value}) ));
+            page.elements.map(element => ({...answers, [element.valueName]: element.value }));
         });
 
-        console.log(answers)
     }
 
     export {
@@ -87,6 +96,7 @@
 <h1>Questionary</h1>
 <button on:click={() => console.log(survey)}>click</button>
 <button on:click={getAnswers}>click</button>
+<button on:click={() => console.log(currentPage)}>get current page</button>
 
 
 {#if survey }
@@ -103,14 +113,25 @@
             </div>
         </div>
 
-        <Page page={survey.currentPage} />
+        {#if currentPage}
+            <Page page={currentPage} />
+        {/if}
+        
         <div class="survey__bottom">
-            <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
-            {#if survey.currentPageNum !== survey.amountPages}
-                <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
+            {#if survey.config.firstPageIsStarted}
+                <button class="btn survey__bottom-btn" on:click={() => alert('Начать')}>Начать</button>
+
             {:else}
-                <button class="btn survey__bottom-btn" on:click={() => alert('finished')}>Закончить</button>
+                <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
+                {#if survey.currentPageNum !== survey.amountPages}
+                    <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
+                {:else}
+                    <button class="btn survey__bottom-btn" on:click={() => alert('finished')}>Закончить</button>
+                {/if}
+           
             {/if}
+
+
         </div>
     </div>
 
