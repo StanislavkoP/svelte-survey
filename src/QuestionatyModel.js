@@ -1,56 +1,71 @@
 export class Questionary {
     constructor(config) {
         this.config = config;
-        this.progress = 0;
         this.amountPages = config.pages.length || 0;
         this.currentPageNum = 1;
-        this.currentPage = config.pages[this.currentPageNum - 1];
         this.addAdditionalFields();
+    }
+
+    get currentPage() {
+        return this.config.pages[this.currentPageNum - 1];
+    }
+
+    get pages() {
+        return this.config.pages;
+    }
+
+    get progress() {
+        return (100 / this.amountPages * (this.currentPageNum - 1));
     }
     
     addAdditionalFields() {
         const modifiedPages = this.config.pages.map((page, index) => {
 
-            const modifiedElements = page.elements.map(element => ({
-                ...element,
-                value: '',
-            }));
-            
-            return (
-                Object.assign(page, {
-                    elements: modifiedElements,
-                    countPage : index + 1,
-                })
-            )
+            if(page.elements) {
+                const modifiedElements = page.elements.map(element => {
+                
+                    if (element.hasOther) {
+                        return {
+                            ...element,
+                            value: '',
+                            otherIsSelected: false,
+                            otherValue: ''
+                        }
+                    }
+    
+                    return {
+                        ...element,
+                        value: '',
+                    }
+                });
+                
+                return (
+                    Object.assign(page, {
+                        elements: modifiedElements,
+                        countPage : index + 1,
+                    })
+                )
+            }
+
             
         });
 
         this.config.pages = modifiedPages;
     }
 
-    setCurrentPage(indexPage) {
-        this.currentPage = this.config.pages[indexPage - 1];
-        
-        return this.currentPage;
-    }
 
     onPrevPage() {
         this.currentPageNum = this.currentPageNum - 1 <= 0 ? 1 : this.currentPageNum - 1;
-        
-        this.progress = this.recalculateProgress(this.currentPageNum, this.amountPages);
-        
-        return this.setCurrentPage(this.currentPageNum);
+                
+        return this.currentPage;
     }
 
     onNextPage() {
         this.checkValidation(this.currentPage);
-       
+        
         if (this.currentPage.isValid) {
             this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
-            
-            this.progress = this.recalculateProgress(this.currentPageNum, this.amountPages);
-            
-            return this.setCurrentPage(this.currentPageNum);
+            return this.currentPage;
         
         } else {
             return this.currentPage
@@ -59,9 +74,6 @@ export class Questionary {
         
     }
 
-    recalculateProgress(currentPage, amountPages) {
-        return (100 / amountPages * (currentPage - 1));
-    }
 
     checkValidation(page) {
         let pageIsValid = true;
