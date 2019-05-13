@@ -1,6 +1,76 @@
 {
+    "firstPageIsStarted": true,
     "pages": [
-        
+        {
+            "name": "page0",
+            "title": "Введите свои персональные данные",
+            "elements": [
+                {            
+                    "type": "html",
+                    "html": "<p>adasdasdadasdasd html</p>"
+                }
+            ]
+        },
+        {
+            "name": "page1",
+            "title": "Введите свои персональные данные",
+            "elements": [
+                {
+                    "type": "text",
+                    "name": "Фамилия",
+                    "title": "Ваша фамилия:",
+                    "valueName": "Фамилия",
+                    "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите вашу фамилию",
+                    "placeHolder": "Ваша фамилия"
+                },
+                {
+                    "type": "text",
+                    "name": "Имя",
+                    "title": "Ваше имя:",
+                    "valueName": "Имя",
+                    "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите ваше имя",
+                    "placeHolder": "Ваше имя"
+                },
+                {
+                    "type": "text",
+                    "name": "Отчество",
+                    "title": "Ваше отчество:",
+                    "valueName": "Имя",
+                    "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите ваше отчество",
+                    "placeHolder": "Ваше отчество"
+                },
+                {
+                    "type": "date",
+                    "name": "Дата рождения",
+                    "title": "Дата рождения:",
+                    "valueName": "Дата рождения",
+                    "isRequired": true,
+                    "requiredErrorText": "Пожалуйста, введите вашу дату рождения",
+                    "placeHolder": "Дата рождения"
+                },
+                {
+                    "type": "tel",
+                    "name": "Телефон",
+                    "title": "Ваш телефон:",
+                    "valueName": "Телефон",
+                    "requiredErrorText": "Пожалуйста, введите ваш номер телефона",
+                    "isRequired": true,
+                    "placeHolder": "Ваш телефон"
+                },
+                {
+                    "type": "email",
+                    "name": "Почта",
+                    "title": "Электронная почта:",
+                    "requiredErrorText": "Пожалуйста, введите вашу электронную почту",
+                    "valueName": "Почта",
+                    "isRequired": true,
+                    "placeHolder": "Электронная почта"
+                }
+            ]
+        },
         {
             "name": "page2",
             "title": "Из какого источника Вы узнали о вакансии?",
