@@ -100,7 +100,9 @@
 	.question__group-textarea {
 		resize: none;
 		width: 100%;
-		animation:  swing-in-top-out 0.7s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
+    height: 0;
+    opacity: 0;
+		/* animation:  swing-in-top-out 0.7s cubic-bezier(0.175, 0.885, 0.320, 1.275) both; */
 	}
 
 	.question__group-textarea.active {

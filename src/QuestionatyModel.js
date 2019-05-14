@@ -1,13 +1,23 @@
 export class Questionary {
     constructor(config) {
         this.config = config;
-        this.amountPages = config.pages.length || 0;
-        this.currentPageNum = 1;
+        this.firstPage = null;
+        this.currentPageNum = this.config.firstPageIsStarted ? 0 : 1;
         this.addAdditionalFields();
+        this.surveyIsStarted = this.config.firstPageIsStarted ? false : true;
+    }
+
+    get amountPages() {
+        return this.config.firstPageIsStarted ? this.config.pages.length - 1 : this.config.pages.length
     }
 
     get currentPage() {
-        return this.config.pages[this.currentPageNum - 1];
+
+        if (parseInt(this.currentPageNum) - 1 <  0) return this.config.pages[0]
+
+        return this.config.firstPageIsStarted ? this.config.pages[this.currentPageNum] : this.config.pages[this.currentPageNum - 1];
+
+         
     }
 
     get pages() {
@@ -62,16 +72,27 @@ export class Questionary {
 
     onNextPage() {
         this.checkValidation(this.currentPage);
-        
+     
         if (this.currentPage.isValid) {
+           
             this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
+
             return this.currentPage;
         
         } else {
-            return this.currentPage
+            return this.currentPage;
         
         }
         
+    }
+
+    onStartSurvey() {
+        this.onNextPage();
+        this.surveyIsStarted = true;
+    }
+
+    onFinishSurvey() {
+        console.log('finished')
     }
 
 

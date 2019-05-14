@@ -1,9 +1,11 @@
 {
     "firstPageIsStarted": true,
+    "completeButtonText": "Отправить config",
+    "startButtonText": "Начать config",
     "pages": [
         {
             "name": "page0",
-            "title": "Введите свои персональные данные",
+            "title": "Html страница",
             "elements": [
                 {            
                     "type": "html",
@@ -37,7 +39,7 @@
                     "type": "text",
                     "name": "Отчество",
                     "title": "Ваше отчество:",
-                    "valueName": "Имя",
+                    "valueName": "Отчество",
                     "isRequired": true,
                     "requiredErrorText": "Пожалуйста, введите ваше отчество",
                     "placeHolder": "Ваше отчество"
@@ -90,6 +92,16 @@
                     ],
                     "hasOther": true,
                     "otherText": "Другое"
+                }
+            ]
+        },
+        {
+            "name": "lasapge",
+            "title": "Подтвердите отправку анкеты",
+            "elements": [
+                {
+                    "type": "html",
+                    "html": "<div class='confidentiality'> Нажимая на кнопку 'Отправить', Вы даете <a href='http://petrishin.ru/assets/Soglasie_na_obrabotku_personalnyh_dannyh_klientov.pdf' target='_blank'>согласие на обработку персональных данных</a>. Мы гарантируем неприкосновенность предоставленных Вами персональных данных. Пожалуйста, ознакомьтесь с <a href='http://petrishin.ru/confidential.html' target='_blank'>нашей политикой конфиденциальности </a>.</div>"
                 }
             ]
         }

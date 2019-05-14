@@ -13,21 +13,24 @@
     });
 
     let currentPage = null;
+    let currentPageNum = null;
 
     afterUpdate(() => {
-        console.log('update')
         if (survey !== null && currentPage === null) currentPage = survey.currentPage;
+        if (survey !== null && currentPageNum === null) currentPageNum = survey.currentPageNum;
     });
 
     function onNextPage () {
         survey.onNextPage();
         currentPage = survey.currentPage;
+        currentPageNum = survey.currentPageNum;
         progress.set(survey.progress);
     }
 
     function onPrevPage () {
         survey.onPrevPage();
         currentPage = survey.currentPage;
+        currentPageNum = survey.currentPageNum;
         progress.set(survey.progress);
     }
 
@@ -36,9 +39,22 @@
         let answers = {};
 
         survey.config.pages.map((page, index) => {
-            page.elements.map(element => ({...answers, [element.valueName]: element.value }));
+            page.elements.map(element => element.type !== 'html' ? answers[element.valueName] = element.value : null );
         });
 
+        console.log(answers )
+
+    }
+
+    function onStartSurvey() {
+        survey.onStartSurvey();
+        currentPageNum = survey.currentPageNum;
+        currentPage = survey.currentPage;
+    }
+
+    function onFinishSurvey() {
+        survey.onFinishSurvey();
+        currentPage = survey.currentPage;
     }
 
     export {
@@ -96,37 +112,45 @@
 <h1>Questionary</h1>
 <button on:click={() => console.log(survey)}>click</button>
 <button on:click={getAnswers}>click</button>
-<button on:click={() => console.log(currentPage)}>get current page</button>
+<button on:click={() => console.log(currentPage, currentPageNum)}>get current page</button>
 
 
 {#if survey }
     <div class="survey">
-        <div class="progress">
-            <div class="progress__steps">
-                <span class="progress__current-page">{ survey.currentPageNum }</span>
-                <span>из</span>
-                <span class="progress_amount-page">{ survey.amountPages }</span>
-            </div>
+        {#if survey.surveyIsStarted}
+            <div class="progress">
+                <div class="progress__steps">
+                    <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
+                    <span>из</span>
+                    <span class="progress_amount-page">{ survey.amountPages }</span>
+                </div>
 
-            <div class="progress__bar">
-                <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
+                <div class="progress__bar">
+                    <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
+                </div>
             </div>
-        </div>
+        {/if}
+        
 
         {#if currentPage}
             <Page page={currentPage} />
         {/if}
         
         <div class="survey__bottom">
-            {#if survey.config.firstPageIsStarted}
-                <button class="btn survey__bottom-btn" on:click={() => alert('Начать')}>Начать</button>
+            {#if !survey.surveyIsStarted }
+                <button class="btn survey__bottom-btn" on:click={onStartSurvey}>{survey.config.startButtonText || 'Начать'}</button>
 
             {:else}
-                <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
-                {#if survey.currentPageNum !== survey.amountPages}
+                {#if currentPageNum > 1 && survey.surveyIsStarted}
+                    <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
+                {/if}
+
+                {#if currentPageNum !== survey.amountPages}
                     <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
+               
                 {:else}
-                    <button class="btn survey__bottom-btn" on:click={() => alert('finished')}>Закончить</button>
+                    <button class="btn survey__bottom-btn" on:click={onFinishSurvey}>{survey.config.completeButtonText || 'Закончить'}</button>
+                
                 {/if}
            
             {/if}
