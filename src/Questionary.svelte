@@ -1,3 +1,65 @@
+<h1>Questionary</h1>
+<button on:click={() => console.log(survey)}>click</button>
+<button on:click={getAnswers}>click</button>
+<button on:click={() => console.log(currentPage, currentPageNum)}>get current page</button>
+
+{#if survey }
+    <select bind:value={currentPageNum} on:change="{() => {survey.currentPageNum = currentPageNum; currentPage = survey.currentPage}}">
+        {#each survey.config.pages as page, index}
+            <option value={page.countPage}>
+                {page.name}
+            </option>
+        {/each}
+    </select>
+
+    <div class="survey">
+        {#if survey.surveyIsStarted}
+            <div class="progress">
+                <div class="progress__steps">
+                    <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
+                    <span>из</span>
+                    <span class="progress_amount-page">{ survey.amountPages }</span>
+                </div>
+
+                <div class="progress__bar">
+                    <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
+                </div>
+            </div>
+        {/if}
+        
+
+        {#if currentPage}
+            <Page page={currentPage} />
+        {/if}
+        
+        <div class="survey__bottom">
+            {#if !survey.surveyIsStarted && currentPageNum === 0}
+                <button class="btn survey__bottom-btn" on:click={onStartSurvey}>{survey.config.startButtonText || 'Начать'}</button>
+
+            {:else}
+                {#if currentPageNum > 1 && survey.surveyIsStarted}
+                    <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
+                {/if}
+
+                {#if currentPageNum !== survey.amountPages}
+                    <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
+               
+                {:else}
+                    <button class="btn survey__bottom-btn" on:click={onFinishSurvey}>{survey.config.completeButtonText || 'Закончить'}</button>
+                
+                {/if}
+           
+            {/if}
+
+
+        </div>
+    </div>
+
+{:else}
+    <Loader/>
+{/if}
+
+
 <script>
     import { afterUpdate } from 'svelte';
 	import { tweened } from 'svelte/motion';
@@ -39,7 +101,29 @@
         let answers = {};
 
         survey.config.pages.map((page, index) => {
-            page.elements.map(element => element.type !== 'html' ? answers[element.valueName] = element.value : null );
+            page.elements.map(element => {
+                if ( element.type !== 'html') {
+                    answers[element.valueName] = element.value
+
+                    if (element.otherIsSelected) {
+                        
+                        if(element.type === 'checkbox') {
+                            console.log(element.value)
+
+                            answers[element.valueName] = answers[element.valueName].filter(elem => elem !== 'other').concat(element.otherValue)
+                        
+                        } else {
+                            
+                            answers[element.valueName] = element.otherValue
+                        
+                        }
+
+                        
+                    }
+                    
+                }
+                
+            });
         });
 
         console.log(answers )
@@ -107,58 +191,3 @@
     }
     
 </style>
-
-
-<h1>Questionary</h1>
-<button on:click={() => console.log(survey)}>click</button>
-<button on:click={getAnswers}>click</button>
-<button on:click={() => console.log(currentPage, currentPageNum)}>get current page</button>
-
-
-{#if survey }
-    <div class="survey">
-        {#if survey.surveyIsStarted}
-            <div class="progress">
-                <div class="progress__steps">
-                    <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
-                    <span>из</span>
-                    <span class="progress_amount-page">{ survey.amountPages }</span>
-                </div>
-
-                <div class="progress__bar">
-                    <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
-                </div>
-            </div>
-        {/if}
-        
-
-        {#if currentPage}
-            <Page page={currentPage} />
-        {/if}
-        
-        <div class="survey__bottom">
-            {#if !survey.surveyIsStarted }
-                <button class="btn survey__bottom-btn" on:click={onStartSurvey}>{survey.config.startButtonText || 'Начать'}</button>
-
-            {:else}
-                {#if currentPageNum > 1 && survey.surveyIsStarted}
-                    <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
-                {/if}
-
-                {#if currentPageNum !== survey.amountPages}
-                    <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
-               
-                {:else}
-                    <button class="btn survey__bottom-btn" on:click={onFinishSurvey}>{survey.config.completeButtonText || 'Закончить'}</button>
-                
-                {/if}
-           
-            {/if}
-
-
-        </div>
-    </div>
-
-{:else}
-    <Loader/>
-{/if}
