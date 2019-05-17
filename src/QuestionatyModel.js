@@ -1,7 +1,6 @@
 export class Questionary {
     constructor(config) {
         this.config = config;
-        this.firstPage = null;
         this.currentPageNum = this.config.firstPageIsStarted ? 0 : 1;
         this.addAdditionalFields();
         this.surveyIsStarted = this.config.firstPageIsStarted ? false : true;
