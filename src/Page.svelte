@@ -1,10 +1,132 @@
+{#if page && Object.keys(page).length > 0}
+	<div class="page" >
+		<h2 class="page__title">{page.title}</h2>
+
+		{#each page.elements as element, indexElement (element.name)}
+			<div class="page__question">
+				{#if element.type === 'radiogroup'}
+					<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
+					{#each element.choices as choice, choiceIndex (choice.value || choice)}
+						<div class="input-group">
+							<input
+								id={element.name + (choice.value || choice)}
+								class="input-group__input"
+								type="radio"
+								name={element.name}
+								value={choice.value || choice}
+								bind:group={element.value}
+								on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+							/>
+
+							<label for={element.name + (choice.value || choice)} class="input-group__label">
+								<span class="input-group__fake-input input-group__fake-input--radio" />
+								<span class="input-group__text">{ choice.value || choice }</span>
+							</label>
+						</div>
+					{/each}
+
+					{#if element.hasOther}
+						<div class="input-group">
+							<input
+								id={element.name + '-other'}
+								class="input-group__input"
+								type="radio"
+								value={element.name + '-other'}
+								name={element.name}
+								bind:group={element.value}
+								on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+							/>
+
+							<label for={element.name + '-other'} class="input-group__label">
+								<span class="input-group__fake-input input-group__fake-input--radio" />
+								<span class="input-group__text">{ element.otherText || 'Другое' }</span>
+							</label>
+
+							<textarea
+								class="input-group__textarea input-group__textarea--other"
+								name={element.name + '-other'}
+								bind:value={element.otherValue}
+							/>
+						</div>
+
+					{/if}
+			
+				{:else if element.type === 'checkbox'}
+					<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
+					{#each element.choices as choice, choiceIndex (choice.value || choice)}
+					<div class="input-group">
+						<input
+							id={element.name + (choice.value || choice)}
+							class="input-group__input"
+							type="checkbox"
+							value={choice.value || choice}
+							name={element.name}
+							bind:group={element.value}
+							on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+						/>
+
+						<label for={element.name + (choice.value || choice)} class="input-group__label">
+							<span class="input-group__fake-input input-group__fake-input--checkbox" />
+							<span class="input-group__text">{ choice.value || choice }</span>
+						</label>
+						</div>
+					{/each}
+
+					{#if element.hasOther}
+						<div class="input-group">
+							<input
+								id={element.name + '-other'}
+								class="input-group__input"
+								type="checkbox"
+								value={element.name + '-other'}
+								name={element.name}
+								bind:checked={element.otherIsSelected}
+								on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+							/>
+
+							<label for={element.name + '-other'} class="input-group__label">
+								<span class="input-group__fake-input input-group__fake-input--checkbox" />
+								<span class="input-group__text">{ element.otherText || 'Другое' || ''}</span>
+							</label>
+							<textarea
+								class="input-group__textarea input-group__textarea--other"
+								name={element.name + '-other'}
+								bind:value={element.otherValue}
+							/>
+						</div>
+					{/if}
+			
+				{:else if element.type === 'html'}
+					{@html element.html}
+
+				{:else if element.type === 'textarea'}
+					<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
+					<textarea
+						class="input-group__textarea"
+						name={element.name}
+						bind:value={element.value}
+					/>
+
+				{:else}
+					<Input element={element}/>
+				
+				{/if}
+
+
+			</div>
+		{/each}
+	</div>
+{/if}
+
+
 <script>
-  import flatpickr from "flatpickr";
-  import { onMount, afterUpdate } from "svelte";
+	import flatpickr from "flatpickr";
+	import { onMount, afterUpdate } from "svelte";
+	import { fade } from "svelte/transition";
+	import Input from './components/Input.svelte';
+	import ValidationError from './components/ValidationError';
 
-  import Input from "./components/Input";
-
-  export let page = null;
+	export let page = null;
 
 
 	afterUpdate(() => {
@@ -16,307 +138,140 @@
 		}
 	});
 
-  //TODO Add id for each element in page.elements
-  function onChange(e, element, indexElement) {
-		if (e.target.type === 'checkbox') {
-				if (e.target.value === 'other') {
-						page.elements[indexElement].otherIsSelected = e.target.checked;
-				}
-		
+	function hideError (element) {
+		element.isValid = true;
+	}
+
+	function toggleSelectOther (e, element) {
+		if (e.target.value === element.name + '-other') {
+			element.otherIsSelected = true;
+			
 		} else {
-			if (e.target.value === "other") {
-				page.elements[indexElement].otherIsSelected = true;
-			}
-
-			if (element.otherIsSelected && e.target.value !== "other") {
-				page.elements[indexElement].otherIsSelected = false;
-			}
+			element.otherIsSelected = false;
 		}
-
-
-
-		
-  }
+	}
 </script>
 
 <style>
-  .page {
-	 display: flex;
-	 flex-direction: column;
-	 align-items: center;
-  }
+	.page {
+		display: flex;
+		flex-direction: column;
+	}
 
-  .page__question {
-	 margin-top: 6px;
-	 width: 100%;
-	 max-width: 400px;
-  }
+	.page__question {
+		margin-top: 6px;
+	}
 
-  .page__title {
-	 margin: 0;
-  }
+	.page__title {
+		margin: 0;
+	}
 
-  .question__group:not(:first-child) {
-	 margin-top: 8px;
-  }
 
-  .question__group--radio:not(:first-child) {
-	 margin-top: 0;
-  }
+	.input-group__input {
+		display: none;
+  	}
 
-  .question__group-label {
-	 display: flex;
-	 align-items: center;
-	 cursor: pointer;
-  }
+	.input-group__label {
+		display: flex;
+		cursor: pointer;
+	}
 
-  .question__group-input[type="radio"],
-  .question__group-input[type="checkbox"] {
-	 display: none;
-  }
+	.input-group__fake-input {
+		position: relative;
+		display: block;
+		width: 16px;
+	 	height: 16px;
+		margin-right: 6px;
+		border: 1px solid #4570ff;
+		flex-shrink: 0;
+		margin-top: 5px;
+	}
 
-  .question__group-fake-input {
-	 position: relative;
-	 display: block;
-	 width: 16px;
-	 height: 16px;
-	 margin-right: 6px;
-	 border: 1px solid #4570ff;
-	 border-radius: 50%;
-  }
+	.input-group__fake-input--checkbox {
+		border-radius: 2px;
+	}
 
-  .question__group-fake-input::after {
-	 content: "";
-	 position: absolute;
-	 top: 50%;
-	 left: 50%;
-	 display: block;
-	 width: 10px;
-	 height: 10px;
-	 background-color: #4570ff;
-	 border-radius: 50%;
-	 transform: translate(-50%, -50%);
-	 opacity: 0;
-	 transition: opacity 0.3s ease;
-  }
-
-  .question__group-fake-input--checkbox {
-	 border-radius: 3px;
-  }
-
-  .question__group-fake-input--checkbox::after,
-  .question__group-fake-input--checkbox::before {
-	 content: "";
-	 display: block;
-	 position: absolute;
-	 top: 50%;
-	 left: 50%;
-	 height: 2px;
-	 border-radius: 0;
-	 transform: translate(-50%, -50%);
-	 z-index: 1;
-	 background-color: #4570ff;
-	 opacity: 0;
-	 transition: opacity 0.3s ease;
-  }
-
-  .question__group-fake-input--checkbox::before {
-	 transform: rotate(-50deg);
-	 width: 11px;
-	 margin-left: -2.5px;
-	 margin-top: -1px;
-  }
-
-  .question__group-fake-input--checkbox::after {
-	 margin-left: -5.5px;
-	 margin-top: 1px;
-	 width: 6px;
-	 transform: rotate(40deg);
-  }
-
-  .question__group-input[type="radio"]:checked
-	 ~ .question__group-label
-	 .question__group-fake-input::after {
-	 opacity: 1;
-  }
-
-  .question__group-input[type="checkbox"]:checked
-	 ~ .question__group-label
-	 .question__group-fake-input::after,
-  .question__group-input[type="checkbox"]:checked
-	 ~ .question__group-label
-	 .question__group-fake-input::before {
-	 opacity: 1;
-  }
-
-  .question__group-textarea {
-	 resize: none;
-	 width: 100%;
-	 height: 0;
-	 opacity: 0;
-	 /* animation:  swing-in-top-out 0.7s cubic-bezier(0.175, 0.885, 0.320, 1.275) both; */
-  }
-
-  .question__group-textarea.active {
-	 animation: swing-in-top-in 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-  }
-
-  @keyframes swing-in-top-in {
-	 0% {
-		transform: rotateX(-90deg);
-		transform-origin: top;
-	 }
-
-	 50% {
-		opacity: 0.7;
-	 }
-
-	 100% {
-		transform: rotateX(0deg);
-		transform-origin: top;
-		height: 150px;
-		opacity: 1;
-	 }
-  }
-  @keyframes swing-in-top-out {
-	 0% {
-		height: 150px;
-		opacity: 1;
-		transform: rotateX(0);
-		transform-origin: bottom;
-	 }
-
-	 90% {
+  .input-group__fake-input--checkbox::after,
+  .input-group__fake-input--checkbox::before {
+		content: "";
+		display: block;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		height: 2px;
+		border-radius: 0;
+		background-color: #4570ff;
 		opacity: 0;
-	 }
-
-	 100% {
-		transform: rotateX(-90deg);
-		transform-origin: bottom;
-		height: 0;
-	 }
+		z-index: 1;
+		transform: translate(-50%, -50%);
+		transition: opacity 0.3s ease;
   }
+
+  .input-group__fake-input--checkbox::before {
+		transform: rotate(-50deg);
+		width: 11px;
+		margin-left: -2.5px;
+		margin-top: -1px;
+  }
+
+  .input-group__fake-input--checkbox::after {
+		margin-left: -5.5px;
+		margin-top: 1px;
+		width: 6px;
+		transform: rotate(40deg);
+  }
+
+  .input-group__input:checked ~ .input-group__label .input-group__fake-input::after,
+  .input-group__input:checked ~ .input-group__label .input-group__fake-input::before {
+	 	opacity: 1;
+  	}
+
+	.input-group__fake-input--radio {
+		border-radius: 50%;
+	}
+
+	.input-group__fake-input--radio::after {
+		content: "";
+		display: block;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 10px;
+		height: 10px;
+		opacity: 0;
+		border-radius: 50%;
+		background-color: #4570ff;
+		transform: translate(-50%, -50%);
+		transition: opacity 0.3s ease;
+	}
+
+	.input-group__fake-input--radio:checked ~ .input-group__label .input-group__fake-input::after {
+		opacity: 1;
+	}
+
+	.input-group__textarea {
+		width: 100%;
+		height: 150px;
+		resize: none;
+		overflow: auto;
+	}
+
+	.input-group__textarea.input-group__textarea--other {
+		resize: none;
+		width: 100%;
+		height: 0;
+		opacity: 0;
+		transition: transform 0.3s, opacity 0.3s, height 0.2s ease;
+		transform: scale(-1);
+		overflow: hidden;
+		will-change: transform, opacity, height
+	}
+
+	.input-group__input:checked ~ .input-group__textarea.input-group__textarea--other {
+		height: 150px;
+		opacity: 1;
+		overflow: auto;
+		transform: scale(1);
+	}
 </style>
 
-{#if page && Object.keys(page).length > 0}
-  <div class="page">
-	 <h2 class="page__title">{page.title}</h2>
-
-	 {#each page.elements as element, elementIndex}
-		<div class="page__question">
-		  {#if element.type === 'radiogroup'}
-			 {#each element.choices as choice, choiceIndex}
-				
-				
-				<div class={`question__group question__group--radio`}>
-					<input
-						id={`page-${page.countPage}-input ${choice.value || choice}`}
-						class="question__group-input"
-						type="radio"
-						value={choice.value || choice}
-						bind:group={element.value}
-						on:change={e => onChange(e, element, elementIndex)} />
-
-					<label
-						for={`page-${page.countPage}-input ${choice.value || choice}`}
-						class="question__group-label">
-						<span class="question__group-fake-input" />
-						<span class="question__group-text">
-							{choice.text || choice}
-						</span>
-					</label>
-
-				</div>
-			 {/each}
-
-			 {#if element.hasOther}
-				<div class="question__group question__group--radio">
-				  <input
-					 id={`page-${page.countPage}-input-other`}
-					 class="question__group-input"
-					 type="radio"
-					 name={element.name}
-					 value="other"
-					 bind:group={element.value}
-					 on:change={e => onChange(e, element, elementIndex)} />
-				  <label
-					 for={`page-${page.countPage}-input-other`}
-					 class="question__group-label">
-					 <span class="question__group-fake-input" />
-					 <span class="question__group-text">
-						 {element.otherText || 'Другое'}
-					 </span>
-				  </label>
-				</div>
-			 {/if}
-
-			 <textarea
-				class:active={element.otherIsSelected}
-				class="question__group-textarea"
-				bind:value={element.otherValue}
-				name={element.name} />
-
-		  
-		  
-		  {:else if element.type === 'checkbox'}
-			 {#each element.choices as choice, choiceIndex}
-				<div class="question__group">
-				  <input
-					 id={`page-${page.countPage}-input ${choice.value || choice}`}
-					 class="question__group-input"
-					 type="checkbox"
-					 value={choice.value || choice}
-					 bind:group={element.value}
-					 on:change={e => onChange(e, element, elementIndex)} />
-				  <label
-					 for={`page-${page.countPage}-input ${choice.value || choice}`}
-					 class="question__group-label">
-					 <span
-						class="question__group-fake-input
-						question__group-fake-input--checkbox" />
-					 <span class="question__group-text">
-						 {choice.text || choice}
-					 </span>
-				  </label>
-
-				</div>
-			 {/each}
-
-			 {#if element.hasOther}
-				<div class="question__group question__group">
-				  <input
-					 id={`page-${page.countPage}-input ${element.name}`}
-					 class="question__group-input"
-					 type="checkbox"
-					 name={element.name}
-					 value="other"
-					 bind:group={element.value}
-					 on:change={e => onChange(e, element, elementIndex)} />
-				  <label
-					 for={`page-${page.countPage}-input ${element.name}`}
-					 class="question__group-label">
-					 <span
-						class="question__group-fake-input
-						question__group-fake-input--checkbox" />
-					 <span class="question__group-text">
-						 {element.otherText || 'Другое'}
-					 </span>
-				  </label>
-				</div>
-			 {/if}
-
-			 <textarea
-				class:active={element.otherIsSelected}
-				class="question__group-textarea"
-				bind:value={element.otherValue}
-				name={element.name} />
-		  
-		  {:else if element.type === 'html'}
-			 {@html element.html}
-
-		  {/if}
-		
-		</div>
-	 {/each}
-  </div>
-{/if}
