@@ -1,57 +1,61 @@
+{#if element}
+    <div class="input-group">
+        <label>
+            <div>{ element.title }</div>
+                <ValidationError  isShowed={element.isValid === false} errorText={element.errorText}/>
+            {#if element.type === 'date'}
+                <input
+                    type="date"
+                    class="input-group__input--text"
+                    class:hasError={element.isValid === false}
+                    bind:value={element.value}
+                    name={element.valueName}
+                    placeholder={element.placeHolder} 
+                    on:input={(e) => {element.isValid = true}}
+                />
+            {:else if element.type === 'email'}
+                <input
+                    type="email"
+                    class="input-group__input--text"
+                    class:hasError={element.isValid === false}
+                    bind:value={element.value}
+                    name={element.valueName}
+                    placeholder={element.placeHolder} 
+                    on:input={(e) => {element.isValid = true}}
+                />
+            {:else}
+                <input
+                    class="input-group__input--text"
+                    class:hasError={element.isValid === false}
+                    bind:value={element.value}
+                    name={element.valueName}
+                    placeholder={element.placeHolder} 
+                    on:input={(e) => {element.isValid = true}}
+                />
+            {/if}
+
+        </label>
+    </div>
+{/if}
+
+
 <script>
-    export let element;
+    import ValidationError from './ValidationError.svelte';
+
+    export let element = null;
+    export let change;
     
 </script>
 
 <style>
-    .question__group-input--text {
+    .input-group__input--text {
         padding: 12px 10px;
         margin: 0;
         width: 100%;
     }
 
-    .question__group-input--text.hasError {
+    .input-group__input--text.hasError {
         border-color: rgba(245, 70, 52, 0.9);
     }
 
-    .question__error {
-        font-size: 14px;
-        padding: 6px;
-        color: white;
-        background-color: rgba(245, 70, 52, 0.9);
-    }
 </style>
-
-
-{#if element.isValid === false}
-    <div class="question__error">
-    <div class="question__error--text">{element.errorText}</div>
-    </div>
-{/if}
-{#if element.type === 'date'}
-    <input
-        type="date"
-        class="question__group-input--text"
-        class:hasError={element.isValid === false}
-        bind:value={element.value}
-        name={element.valueName}
-        placeholder={element.placeHolder} 
-    />
-{:else if element.type === 'email'}
-    <input
-        type="email"
-        class="question__group-input--text"
-        class:hasError={element.isValid === false}
-        bind:value={element.value}
-        name={element.valueName}
-        placeholder={element.placeHolder} 
-    />
-{:else}
-    <input
-        class="question__group-input--text"
-        class:hasError={element.isValid === false}
-        bind:value={element.value}
-        name={element.valueName}
-        placeholder={element.placeHolder} 
-    />
-{/if}
