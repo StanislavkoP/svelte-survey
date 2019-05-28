@@ -15,52 +15,53 @@
 
     {#if visible}
         <div class="survey">
-        <div 
-            transition:fade
-            on:outroend={() => visible = true}
-        >
-            {#if survey.surveyIsStarted}
-                <div class="progress">
-                    <div class="progress__steps">
-                        <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
-                        <span>из</span>
-                        <span class="progress_amount-page">{ survey.amountPages }</span>
-                    </div>
+            <div 
+                transition:fade
+                on:outroend={() => visible = true}
+            >
+                {#if survey.surveyIsStarted}
+                    <div class="progress">
+                        <div class="progress__steps">
+                            <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
+                            <span>из</span>
+                            <span class="progress_amount-page">{ survey.amountPages }</span>
+                        </div>
 
-                    <div class="progress__bar">
-                        <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
+                        <div class="progress__bar">
+                            <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
+                        </div>
                     </div>
-                </div>
-            {/if}
+                {/if}
+                
             
-            
                 
                 
                 
-                    {#if survey && visible}
-                        <Page page={currentPage} />
-                    {/if}
-                    
+                {#if survey}
+                    <Page page={currentPage} />
+
                     <div class="survey__bottom">
-                        {#if !survey.surveyIsStarted && currentPageNum === 0}
-                            <button class="btn survey__bottom-btn" on:click={onStartSurvey}>{survey.config.startButtonText || 'Начать'}</button>
+
+                        {#if survey.config.firstPageIsStarted && currentPageNum === 0}
+                            <button class="btn survey__bottom-btn" on:click={onStartSurvey}>{ survey.config.startButtonText || 'Начать' }</button>
 
                         {:else}
-                            {#if currentPageNum > 1 && survey.surveyIsStarted}
+                            {#if currentPageNum > 1}
                                 <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
                             {/if}
 
                             {#if currentPageNum !== survey.amountPages}
                                 <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
-                        
-                            {:else}
-                                <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
+                            {/if}
+
+                            {#if currentPageNum === survey.amountPages}
                                 <button class="btn survey__bottom-btn" on:click={onFinishSurvey}>{survey.config.completeButtonText || 'Закончить'}</button>
                             
                             {/if}
                     
                         {/if}
                     </div>
+                {/if}
             </div>
         </div>
     {/if}
@@ -111,7 +112,9 @@
     }
 
     function onPrevPage () {
-        survey.onPrevPage();
+        survey.onPrevPage(() => {
+            visible = false;
+        });
         currentPage = survey.currentPage;
         currentPageNum = survey.currentPageNum;
         progress.set(survey.progress);
@@ -122,8 +125,9 @@
     }
 
     function onStartSurvey() {
-        survey.onStartSurvey();
-        visible = false;
+        survey.onStartSurvey(() => {
+            visible = false;
+        });
         currentPageNum = survey.currentPageNum;
         currentPage = survey.currentPage;
        

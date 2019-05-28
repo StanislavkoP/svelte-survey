@@ -95,9 +95,9 @@ export class Questionary {
 	}
 
 
-	onPrevPage() {
+	onPrevPage(callback) {
 		this.currentPageNum = this.currentPageNum - 1 <= 0 ? 1 : this.currentPageNum - 1;
-				
+		callback();
 		return this.currentPage;
 	}
 
@@ -107,7 +107,7 @@ export class Questionary {
 		if (this.currentPage.isValid) {
 		   
 			this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
-			callback()
+			callback();
 			return this.currentPage;
 		
 		} else {
@@ -117,8 +117,8 @@ export class Questionary {
 		
 	}
 
-	onStartSurvey() {
-		this.onNextPage();
+	onStartSurvey(callback) {
+		this.onNextPage(callback);
 		this.surveyIsStarted = true;
 	}
 
@@ -136,8 +136,6 @@ export class Questionary {
 
 			let elementIsValid = true;
 			let errorText = '';
-
-			console.log(inputValue);
 
 
 			if (element.isRequired && inputValueLength <= 0) {
