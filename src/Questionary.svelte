@@ -1,17 +1,22 @@
 <h1>Questionary</h1>
-<button on:click={() => console.log(survey)}>click</button>
-<button on:click={getAnswers}>click</button>
-<button on:click={() => console.log(currentPage, currentPageNum)}>get current page</button>
+
+
 
 {#if survey }
-    
-    <select bind:value={currentPageNum} on:change={() => {survey.currentPageNum = currentPageNum; currentPage = survey.currentPage}}>
-        {#each survey.config.pages as page, index}
-            <option value={index}>
-                {page.title}
-            </option>
-        {/each}
-    </select>
+
+    {#if survey.surveyIsStarted}
+        <div class="progress">
+            <div class="progress__steps">
+                <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
+                <span>из</span>
+                <span class="progress_amount-page">{ survey.amountPages }</span>
+            </div>
+
+            <div class="progress__bar">
+                <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
+            </div>
+        </div>
+    {/if}
 
     {#if visible}
         <div class="survey">
@@ -19,25 +24,7 @@
                 transition:fade
                 on:outroend={() => visible = true}
             >
-                {#if survey.surveyIsStarted}
-                    <div class="progress">
-                        <div class="progress__steps">
-                            <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
-                            <span>из</span>
-                            <span class="progress_amount-page">{ survey.amountPages }</span>
-                        </div>
-
-                        <div class="progress__bar">
-                            <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
-                        </div>
-                    </div>
-                {/if}
-                
-            
-                
-                
-                
-                {#if survey}
+                {#if survey && surveyIsFinished === false}
                     <Page page={currentPage} />
 
                     <div class="survey__bottom">
@@ -61,6 +48,27 @@
                     
                         {/if}
                     </div>
+
+                    {:else}
+                        <div>
+                            {#each survey.userAnswersAdvancedOption as question (question.title)}
+                                <ul>
+                                    <li>{ question.title }</li>
+                                    <ul>
+                                        {#each question.answers as answer (answer.valueName)}
+                                            {#if question.title.includes('Введите свои персональные данные')}
+                                                <li>{answer.valueName} : {answer.value}</li>
+
+                                            {:else}
+                                                 <li>{answer.value}</li>
+                                            {/if}
+                                            
+                                        {/each}
+                                    </ul>
+                                </ul>
+                            {/each}
+                        </div>
+
                 {/if}
             </div>
         </div>
@@ -90,6 +98,11 @@
     let currentPage = null;
     let currentPageNum = null;
     let visible = false;
+    let surveyIsFinished = false;
+
+    export {
+        survey
+    }
 
 
     afterUpdate(() => {
@@ -121,7 +134,7 @@
     }
 
     function getAnswers () {
-        console.log(survey.userAnswers )
+        console.log(survey.userAnswersAdvancedOption )
     }
 
     function onStartSurvey() {
@@ -130,32 +143,32 @@
         });
         currentPageNum = survey.currentPageNum;
         currentPage = survey.currentPage;
-       
+       progress.set(survey.progress);
     }
 
     function onFinishSurvey() {
         survey.onFinishSurvey(() => console.log('finish'));
-        currentPage = survey.currentPage;
+        surveyIsFinished = survey.surveyIsFinished;
+        return;
     }
 
-    export {
-        survey
-    }
 </script>
 
 <style>
     .survey {
         font-size: 18px;
         line-height: 1.72;
+        box-sizing: border-box;
     }
 
-    .survey *{
+    .survey * {
         box-sizing: border-box;
     }
 
     .progress__bar {
         height : 10px;
-        background-color: rgba(0, 0, 0, 0.1)
+        background-color: rgba(0, 0, 0, 0.1);
+        overflow: hidden;
     }
 
     .progress__bar-line {
