@@ -133,7 +133,8 @@
 		if (document.querySelector('#survey input[type="date"]')) {
 			flatpickr("input[type='date']", {
 			dateFormat: "d.m.Y",
-			maxDate: "today"
+			maxDate: "today",
+			disableMobile: true,
 			});
 		}
 	});
@@ -146,8 +147,12 @@
 		if (e.target.value === element.name + '-other') {
 			element.otherIsSelected = true;
 			
-		} else {
+		}
+
+		console.log(e.target.type)
+		if (e.target.value !== element.name + '-other' && e.target.type === 'radio') {
 			element.otherIsSelected = false;
+		
 		}
 	}
 </script>
