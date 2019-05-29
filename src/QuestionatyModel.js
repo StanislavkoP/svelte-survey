@@ -3,10 +3,11 @@ export class Questionary {
 		this.config = config;
 		this.currentPageNum = this.config.firstPageIsStarted ? 0 : 1;
 		this.surveyIsStarted = this.config.firstPageIsStarted ? false : true;
+		this.surveyIsFinished = false;
 		this.addAdditionalFields();
 	}
 
-	get userAnswers () {
+	get userAnswersShortOption () {
 		const answers = {};
 
 		this.config.pages.map((page) => {
@@ -38,6 +39,45 @@ export class Questionary {
 		return answers;
 	}
 
+	get userAnswersAdvancedOption () {
+		return this.config.pages.reduce((currentPage, nextPage) => {
+			const question = {};
+			const titlePage = nextPage.title;
+			
+			const questionAnswers = nextPage.elements.map(element => {
+				
+				if ( element.type !== 'html') {
+					let userAnswer = element.value;
+									
+					if (element.otherIsSelected) {
+						if(element.type === 'checkbox') {
+							userAnswer = Array.isArray(userAnswer) ? userAnswer.concat(element.otherValue) : userAnswer;
+							
+						} else {
+							userAnswer = element.otherValue;
+						
+						}
+					}
+
+					return {
+						valueName : element.valueName,
+						value : userAnswer,
+					}
+					
+				}
+				
+			}).filter(element => element ? true : false);
+
+			question.title = titlePage;
+			question.answers = questionAnswers;
+
+			currentPage.push(question)
+			
+			return currentPage;
+
+		}, []).filter(page => page.answers.length > 0);
+	};
+
 	get amountPages() {
 		return this.config.firstPageIsStarted ? this.config.pages.length - 1 : this.config.pages.length
 	}
@@ -55,7 +95,7 @@ export class Questionary {
 	}
 
 	get progress() {
-		return (100 / this.amountPages * (this.currentPageNum - 1));
+		return (100 / this.amountPages * (this.currentPageNum));
 	}
 	
 	addAdditionalFields() {
@@ -123,7 +163,8 @@ export class Questionary {
 	}
 
 	onFinishSurvey(callback) {
-		callback()
+		this.surveyIsFinished = true;
+		callback();
 	}
 
 	checkValidation(page) {
@@ -139,15 +180,19 @@ export class Questionary {
 
 
 			if (element.isRequired && inputValueLength <= 0) {
+				console.log('2');
 				elementIsValid = false;
 				pageIsValid = false;
 				errorText = element.requiredErrorText || 'Пожалуйста, ответьте на вопрос';
 			
 			}
-
+			
 			if (element.hasOther) {
 				const otherValue = element.otherValue.trim();
 				const otherValueLength = otherValue.length;
+
+				elementIsValid = elementIsValid && true;
+				pageIsValid = pageIsValid && true;
 
 				if (element.otherIsSelected && element.isRequired && otherValueLength <= 0) {
 					elementIsValid = false;
@@ -161,7 +206,6 @@ export class Questionary {
 
 			// If input value has characters and validation rules then check input value
 			if ( inputValueLength > 0 && elementValidRules && elementValidRules.length > 0) {
-
 				elementValidRules.forEach(validRule => {
 					elementIsValid = true;
 					pageIsValid = pageIsValid && true;
@@ -220,7 +264,6 @@ export class Questionary {
 					}
 				})
 			}
-
 			element.isValid = elementIsValid;
 			element.errorText = errorText;
 		});
