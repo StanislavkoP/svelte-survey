@@ -1,120 +1,123 @@
 {#if page && Object.keys(page).length > 0}
 	<div class="page" >
-		<h2 class="page__title">{page.title}</h2>
+		{#if !page.titleHidden}
+			<h2 class="page__title">{page.title}</h2>
+		{/if}
+		<div class="page__questions">
+			{#each page.elements as element, indexElement (element.id)}
+				<div class="page__question">
+					{#if element.type === 'radiogroup'}
+						<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
+						{#each element.choices as choice, choiceIndex (choice.value || choice)}
+							<div class="input-group">
+								<input
+									id={element.id + (choice.value || choice)}
+									class="input-group__input"
+									type="radio"
+									name={element.name}
+									value={choice.value || choice}
+									bind:group={element.value}
+									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+								/>
 
-		{#each page.elements as element, indexElement (element.name)}
-			<div class="page__question">
-				{#if element.type === 'radiogroup'}
-					<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
-					{#each element.choices as choice, choiceIndex (choice.value || choice)}
-						<div class="input-group">
-							<input
-								id={element.name + (choice.value || choice)}
-								class="input-group__input"
-								type="radio"
-								name={element.name}
-								value={choice.value || choice}
-								bind:group={element.value}
-								on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
-							/>
+								<label for={element.id + (choice.value || choice)} class="input-group__label">
+									<span class="input-group__fake-input input-group__fake-input--radio" />
+									<span class="input-group__text">{ choice.value || choice }</span>
+								</label>
+							</div>
+						{/each}
 
-							<label for={element.name + (choice.value || choice)} class="input-group__label">
-								<span class="input-group__fake-input input-group__fake-input--radio" />
-								<span class="input-group__text">{ choice.value || choice }</span>
-							</label>
-						</div>
-					{/each}
+						{#if element.hasOther}
+							<div class="input-group">
+								<input
+									id={element.name + '-other'}
+									class="input-group__input"
+									type="radio"
+									value={element.name + '-other'}
+									name={element.name}
+									bind:group={element.value}
+									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+								/>
 
-					{#if element.hasOther}
-						<div class="input-group">
-							<input
-								id={element.name + '-other'}
-								class="input-group__input"
-								type="radio"
-								value={element.name + '-other'}
-								name={element.name}
-								bind:group={element.value}
-								on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
-							/>
+								<label for={element.name + '-other'} class="input-group__label">
+									<span class="input-group__fake-input input-group__fake-input--radio" />
+									<span class="input-group__text">{ element.otherText || 'Другое' }</span>
+								</label>
 
-							<label for={element.name + '-other'} class="input-group__label">
-								<span class="input-group__fake-input input-group__fake-input--radio" />
-								<span class="input-group__text">{ element.otherText || 'Другое' }</span>
-							</label>
+								<textarea
+									class="input-group__textarea input-group__textarea--other"
+									name={element.name + '-other'}
+									bind:value={element.otherValue}
+								/>
+							</div>
 
-							<textarea
-								class="input-group__textarea input-group__textarea--other"
-								name={element.name + '-other'}
-								bind:value={element.otherValue}
-							/>
-						</div>
+						{/if}
+				
+					{:else if element.type === 'checkbox'}
+						<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
+						{#each element.choices as choice, choiceIndex (choice.value || choice)}
+							<div class="input-group">
+								<input
+									id={element.id + (choice.value || choice)}
+									class="input-group__input"
+									type="checkbox"
+									value={choice.value || choice}
+									name={element.name}
+									bind:group={element.value}
+									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+								/>
 
-					{/if}
-			
-				{:else if element.type === 'checkbox'}
-					<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
-					{#each element.choices as choice, choiceIndex (choice.value || choice)}
-					<div class="input-group">
-						<input
-							id={element.name + (choice.value || choice)}
-							class="input-group__input"
-							type="checkbox"
-							value={choice.value || choice}
+								<label for={element.id + (choice.value || choice)} class="input-group__label">
+									<span class="input-group__fake-input input-group__fake-input--checkbox" />
+									<span class="input-group__text">{ choice.value || choice }</span>
+								</label>
+							</div>
+						{/each}
+
+						{#if element.hasOther}
+							<div class="input-group">
+								<input
+									id={element.name + '-other'}
+									class="input-group__input"
+									type="checkbox"
+									value={element.name + '-other'}
+									name={element.name}
+									bind:checked={element.otherIsSelected}
+									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+								/>
+
+								<label for={element.name + '-other'} class="input-group__label">
+									<span class="input-group__fake-input input-group__fake-input--checkbox" />
+									<span class="input-group__text">{ element.otherText || 'Другое' || ''}</span>
+								</label>
+								<textarea
+									class="input-group__textarea input-group__textarea--other"
+									name={element.name + '-other'}
+									bind:value={element.otherValue}
+								/>
+							</div>
+						{/if}
+				
+					{:else if element.type === 'html'}
+						{@html element.html}
+
+					{:else if element.type === 'textarea'}
+						<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
+						<textarea
+							class="input-group__textarea"
 							name={element.name}
-							bind:group={element.value}
-							on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+							bind:value={element.value}
 						/>
 
-						<label for={element.name + (choice.value || choice)} class="input-group__label">
-							<span class="input-group__fake-input input-group__fake-input--checkbox" />
-							<span class="input-group__text">{ choice.value || choice }</span>
-						</label>
-						</div>
-					{/each}
-
-					{#if element.hasOther}
-						<div class="input-group">
-							<input
-								id={element.name + '-other'}
-								class="input-group__input"
-								type="checkbox"
-								value={element.name + '-other'}
-								name={element.name}
-								bind:checked={element.otherIsSelected}
-								on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
-							/>
-
-							<label for={element.name + '-other'} class="input-group__label">
-								<span class="input-group__fake-input input-group__fake-input--checkbox" />
-								<span class="input-group__text">{ element.otherText || 'Другое' || ''}</span>
-							</label>
-							<textarea
-								class="input-group__textarea input-group__textarea--other"
-								name={element.name + '-other'}
-								bind:value={element.otherValue}
-							/>
-						</div>
+					{:else}
+						<Input element={element}/>
+					
 					{/if}
-			
-				{:else if element.type === 'html'}
-					{@html element.html}
-
-				{:else if element.type === 'textarea'}
-					<ValidationError isShowed={element.isValid === false} errorText={element.errorText}/>
-					<textarea
-						class="input-group__textarea"
-						name={element.name}
-						bind:value={element.value}
-					/>
-
-				{:else}
-					<Input element={element}/>
-				
-				{/if}
 
 
-			</div>
-		{/each}
+				</div>
+			{/each}
+		</div>
 	</div>
 {/if}
 
@@ -135,7 +138,7 @@
 			dateFormat: "d.m.Y",
 			maxDate: "today",
 			disableMobile: true,
-			});
+			}).setDate('14.05.2013');
 		}
 	});
 
@@ -161,20 +164,29 @@
 	.page {
 		display: flex;
 		flex-direction: column;
+		text-align: center;
+	}
+
+	.page__questions {
+		text-align: left;
 	}
 
 	.page__question {
-		margin-top: 6px;
+		margin-top: 18px;
 	}
 
 	.page__title {
 		margin: 0;
+		line-height: 1.4;
 	}
-
 
 	.input-group__input {
 		display: none;
   	}
+
+	.input-group {
+   		margin-bottom: 4px;
+	}
 
 	.input-group__label {
 		display: flex;
@@ -184,8 +196,8 @@
 	.input-group__fake-input {
 		position: relative;
 		display: block;
-		width: 16px;
-	 	height: 16px;
+		width: 20px;
+		height: 20px;
 		margin-right: 6px;
 		border: 1px solid #4570ff;
 		flex-shrink: 0;
@@ -198,32 +210,32 @@
 
   .input-group__fake-input--checkbox::after,
   .input-group__fake-input--checkbox::before {
-		content: "";
-		display: block;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		height: 2px;
-		border-radius: 0;
-		background-color: #4570ff;
-		opacity: 0;
-		z-index: 1;
-		transform: translate(-50%, -50%);
-		transition: opacity 0.3s ease;
+	content: "";
+	display: block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 2px;
+	border-radius: 0;
+	background-color: #4570ff;
+	opacity: 0;
+	z-index: 1;
+	transform: translate(-50%, -50%);
+	transition: opacity 0.3s ease;
   }
 
   .input-group__fake-input--checkbox::before {
-		transform: rotate(-50deg);
-		width: 11px;
-		margin-left: -2.5px;
-		margin-top: -1px;
+	transform: rotate(-50deg);
+	width: 14px;
+	margin-left: -4px;
+	margin-top: -1px;
   }
 
   .input-group__fake-input--checkbox::after {
-		margin-left: -5.5px;
-		margin-top: 1px;
-		width: 6px;
-		transform: rotate(40deg);
+	margin-left: -8px;
+	margin-top: 1px;
+	width: 8px;
+	transform: rotate(40deg);
   }
 
   .input-group__input:checked ~ .input-group__label .input-group__fake-input::after,
@@ -241,8 +253,8 @@
 		position: absolute;
 		top: 50%;
 		left: 50%;
-		width: 10px;
-		height: 10px;
+		width: 12px;
+		height: 12px;
 		opacity: 0;
 		border-radius: 50%;
 		background-color: #4570ff;

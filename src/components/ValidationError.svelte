@@ -11,16 +11,11 @@
 </script>
 
 <style>
-    .error-text {
-        padding: 12px 10px;
-        width: 100%;
-    }
-
     .error {
-        font-size: 14px;
-        padding: 6px;
+        font-size: 16px;
+        padding: 12px 12px;
         color: white;
-        background-color: rgba(245, 70, 52, 0.9);
+        background-color: #eb4d4b;
     }
 
 </style>

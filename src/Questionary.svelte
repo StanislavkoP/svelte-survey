@@ -1,21 +1,22 @@
-<h1>Questionary</h1>
-
-
-
 {#if survey }
+    <button on:click={() => console.log(survey)}>click</button>
+    <button on:click={getAnswers}>click</button>
+    <button on:click={() => console.log(currentPage, currentPageNum)}>get current page</button>
+    
+    <select style="width: 100%" bind:value={currentPageNum} on:change={() => {survey.currentPageNum = currentPageNum; currentPage = survey.currentPage;  survey.surveyIsStarted = true; progress.set(survey.progress)}}>
+        {#each survey.config.pages as page, index}
+            <option value={index}>
+                {page.title}
+            </option>
+        {/each}
+    </select>
 
     {#if survey.surveyIsStarted}
-        <div class="progress">
-            <div class="progress__steps">
-                <span class="progress__current-page">{ currentPageNum ? currentPageNum : 0 }</span>
-                <span>из</span>
-                <span class="progress_amount-page">{ survey.amountPages }</span>
-            </div>
-
-            <div class="progress__bar">
-                <div class="progress__bar-line" style={`width: ${$progress}%`}></div>
-            </div>
-        </div>
+        <Progressbar 
+            amountPages={ survey.amountPages } 
+            { currentPageNum } 
+            { progress }
+        />
     {/if}
 
     {#if visible}
@@ -30,45 +31,43 @@
                     <div class="survey__bottom">
 
                         {#if survey.config.firstPageIsStarted && currentPageNum === 0}
-                            <button class="btn survey__bottom-btn" on:click={onStartSurvey}>{ survey.config.startButtonText || 'Начать' }</button>
-
+                            <Button  className="survey__bottom-btn" onClick={onStartSurvey} text={ survey.config.startButtonText || 'Начать' } />           
+                        
                         {:else}
                             {#if currentPageNum > 1}
-                                <button class="btn survey__bottom-btn" on:click={onPrevPage}>Назад</button>
+                                <Button className="btn--gradient-left" onClick={onPrevPage} text="Назад" />           
                             {/if}
 
                             {#if currentPageNum !== survey.amountPages}
-                                <button class="btn survey__bottom-btn" on:click={onNextPage}>Далее</button>
+                                <Button onClick={onNextPage} text="Далее" />           
                             {/if}
 
                             {#if currentPageNum === survey.amountPages}
-                                <button class="btn survey__bottom-btn" on:click={onFinishSurvey}>{survey.config.completeButtonText || 'Закончить'}</button>
-                            
+                                <Button onClick={onFinishSurvey} text={survey.config.completeButtonText || 'Закончить'} />           
                             {/if}
                     
                         {/if}
                     </div>
 
-                    {:else}
-                        <div>
-                            {#each survey.userAnswersAdvancedOption as question (question.title)}
+                {:else}
+                    <div>
+                        {#each survey.userAnswersAdvancedOption as question (question.title)}
+                            <ul>
+                                <li>{ question.title }</li>
                                 <ul>
-                                    <li>{ question.title }</li>
-                                    <ul>
-                                        {#each question.answers as answer (answer.valueName)}
-                                            {#if question.title.includes('Введите свои персональные данные')}
-                                                <li>{answer.valueName} : {answer.value}</li>
+                                    {#each question.answers as answer (answer.valueName)}
+                                        {#if question.title.includes('Введите свои персональные данные')}
+                                            <li>{answer.valueName} : {answer.value}</li>
 
-                                            {:else}
-                                                 <li>{answer.value}</li>
-                                            {/if}
-                                            
-                                        {/each}
-                                    </ul>
+                                        {:else}
+                                                <li>{answer.value}</li>
+                                        {/if}
+                                        
+                                    {/each}
                                 </ul>
-                            {/each}
-                        </div>
-
+                            </ul>
+                        {/each}
+                    </div>
                 {/if}
             </div>
         </div>
@@ -86,10 +85,13 @@
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
     import { Questionary } from './QuestionatyModel.js';
-    import Loader from './Loader'
+
+    import Loader from './Loader';
+    import Button from './components/Button';
+    import Progressbar from './components/Progressbar.svelte';
     import Page from './Page';
 
-    let survey = null;
+    export let survey = null;
     let progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -99,11 +101,6 @@
     let currentPageNum = null;
     let visible = false;
     let surveyIsFinished = false;
-
-    export {
-        survey
-    }
-
 
     afterUpdate(() => {
         if (survey !== null && currentPage === null) {
@@ -156,8 +153,8 @@
 
 <style>
     .survey {
-        font-size: 18px;
-        line-height: 1.72;
+        /* font-size: 18px;
+        line-height: 1.72; */
         box-sizing: border-box;
     }
 
@@ -165,39 +162,11 @@
         box-sizing: border-box;
     }
 
-    .progress__bar {
-        height : 10px;
-        background-color: rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-
-    .progress__bar-line {
-        height : 100%;
-        background-color: #4570FF;
-    }
-
     .survey__bottom {
         margin-top: 20px;
-    }
-    
-
-    .btn {
-        background-color: transparent;
-        margin: 0;
-        padding: 12px;
-        border-color: #4570FF;
-        color: #4570FF;
-        cursor: pointer;
-    }
-
-    .btn:hover {
-        background-color: #4570FF;
-        color: white;
-    }
-
-    .survey__bottom {
         display: flex;
         justify-content: center;
     }
+    
     
 </style>
