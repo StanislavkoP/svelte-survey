@@ -55,7 +55,7 @@
     }
 
     .input-group__input--text.hasError {
-        border-color: rgba(245, 70, 52, 0.9);
+        border-color: #eb4d4b;
     }
 
 </style>
