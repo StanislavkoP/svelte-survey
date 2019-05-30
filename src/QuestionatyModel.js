@@ -109,7 +109,8 @@ export class Questionary {
 							...element,
 							value: '',
 							otherIsSelected: false,
-							otherValue: ''
+							otherValue: '',
+							id: `f${(~~(Math.random()*1e8)).toString(16)}`
 						}
 					}
 	
@@ -147,6 +148,7 @@ export class Questionary {
 		if (this.currentPage.isValid) {
 		   
 			this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
+			this.saveUnswersToLocalStorage();
 			callback();
 			return this.currentPage;
 		
@@ -269,5 +271,9 @@ export class Questionary {
 		});
 
 		page.isValid = pageIsValid;
+	}
+
+	saveUnswersToLocalStorage() {
+		window.localStorage.setItem('savedPages', JSON.stringify(this.pages))
 	}
 }
