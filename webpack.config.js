@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const autoprefixer = require('autoprefixer');
 
 const mode = process.env.NODE_ENV || 'development';
 const prod = mode === 'production';
@@ -50,6 +51,18 @@ module.exports = {
 					prod ? MiniCssExtractPlugin.loader : 'style-loader',
 					'css-loader'
 				]
+			},
+			{
+				test: /\.css$/,
+				loader: 'postcss-loader',
+				options: {
+					plugins: [
+						autoprefixer({
+							browsers:['ie >= 11', 'last 4 version']
+						})
+					],
+					sourceMap: true
+				}
 			}
 		]
 	},
