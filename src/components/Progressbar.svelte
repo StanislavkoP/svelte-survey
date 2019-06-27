@@ -37,7 +37,6 @@
     .progress__steps {
         font-size: 24px;
         line-height: 28px;
-        font-weight: 700;
         text-align: center;
         margin-bottom: 12px;
     }

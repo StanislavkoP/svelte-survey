@@ -43,7 +43,7 @@ export class Questionary {
 		return this.config.pages.reduce((currentPage, nextPage) => {
 			const question = {};
 			const titlePage = nextPage.title;
-			
+			const namePage = nextPage.name;
 			const questionAnswers = nextPage.elements.map(element => {
 				
 				if ( element.type !== 'html') {
@@ -70,6 +70,7 @@ export class Questionary {
 
 			question.title = titlePage;
 			question.answers = questionAnswers;
+			question.namePage = namePage;
 
 			currentPage.push(question)
 			
@@ -99,6 +100,14 @@ export class Questionary {
 	}
 	
 	addAdditionalFields() {
+		function uuidv4() {
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			  var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+			  return v.toString(16);
+			});
+		  }
+
+		
 		const modifiedPages = this.config.pages.map((page, index) => {
 
 			if(page.elements) {
@@ -110,14 +119,14 @@ export class Questionary {
 							value: '',
 							otherIsSelected: false,
 							otherValue: '',
-							id: `f${(~~(Math.random()*1e8)).toString(16)}`
+							id: uuidv4()
 						}
 					}
 	
 					return {
 						...element,
 						value: '',
-						id: `f${(~~(Math.random()*1e8)).toString(16)}`
+						id: uuidv4()
 					}
 				});
 				
@@ -142,18 +151,15 @@ export class Questionary {
 		return this.currentPage;
 	}
 
-	onNextPage(callback) {
-		this.checkValidation(this.currentPage);
+	onNextPage(successCallback, failedCallback) {
+		this.checkValidationCurrentPage();
 	 
 		if (this.currentPage.isValid) {
-		   
 			this.currentPageNum = this.currentPageNum + 1 > this.config.pages.length ? this.config.pages.length : this.currentPageNum + 1;
-			this.saveUnswersToLocalStorage();
-			callback();
-			return this.currentPage;
+			successCallback(this);
 		
 		} else {
-			return this.currentPage;
+			failedCallback(this);
 		
 		}
 		
@@ -166,45 +172,19 @@ export class Questionary {
 
 	onFinishSurvey(callback) {
 		this.surveyIsFinished = true;
-		callback();
+		callback(this);
 	}
 
-	checkValidation(page) {
+	checkValidationCurrentPage() {
 		let pageIsValid = true;
 		
-		page.elements.forEach(element => {
+		this.currentPage.elements.forEach(element => {
 			const elementValidRules = element.validators;
 			const inputValue = Array.isArray(element.value) ? element.value.join(',') : element.value.trim();
 			const inputValueLength = inputValue.length;
 
 			let elementIsValid = true;
 			let errorText = '';
-
-
-			if (element.isRequired && inputValueLength <= 0) {
-				console.log('2');
-				elementIsValid = false;
-				pageIsValid = false;
-				errorText = element.requiredErrorText || 'Пожалуйста, ответьте на вопрос';
-			
-			}
-			
-			if (element.hasOther) {
-				const otherValue = element.otherValue.trim();
-				const otherValueLength = otherValue.length;
-
-				elementIsValid = elementIsValid && true;
-				pageIsValid = pageIsValid && true;
-
-				if (element.otherIsSelected && element.isRequired && otherValueLength <= 0) {
-					elementIsValid = false;
-					pageIsValid = false;
-					errorText = element.requiredErrorText || 'Пожалуйста, ответьте на вопрос';
-				
-				}
-	
-			}
-
 
 			// If input value has characters and validation rules then check input value
 			if ( inputValueLength > 0 && elementValidRules && elementValidRules.length > 0) {
@@ -218,6 +198,7 @@ export class Questionary {
 							elementIsValid = false;
 							pageIsValid = false;
 							errorText = validRule.text;
+							return;
 						}
 
 						if (!validRule.allowDigits) {
@@ -227,6 +208,7 @@ export class Questionary {
 								elementIsValid = false;
 								pageIsValid = false;
 								errorText = validRule.text;
+								return;
 							}
 
 						}
@@ -239,17 +221,30 @@ export class Questionary {
 							elementIsValid = false;
 							pageIsValid = false;
 							errorText = validRule.text;
+							return;
 						}
 
 					}
-
+					
 					if (validRule.type === 'numeric') {
+						const minLength = validRule.minLength || 0;
+						const maxLength = validRule.maxLength || 100;
+
+						const containsLetters = new RegExp(/^\D/).test(inputValue);
+						const isValid = new RegExp(`^\\d{${ minLength },${ maxLength }}$`).test(inputValue);
 						
-						const isValid = new RegExp(`^\\d{${validRule.minLength},${validRule.maxLength}}$`).test(inputValue);
+						if (containsLetters) {
+							elementIsValid = false;
+							pageIsValid = false;
+							errorText = validRule.text || 'Поле должно вмещать только цифры';
+							return;
+						}
+
 						if (!isValid) {
 							elementIsValid = false;
 							pageIsValid = false;
-							errorText = validRule.text;
+							errorText = validRule.text || `Поле должно быть не меньше ${ minLength } не больше ${ maxLength }`;
+							return;
 						}
 
 					}
@@ -266,14 +261,38 @@ export class Questionary {
 					}
 				})
 			}
+
+			if (element.hasOther) {
+				const otherValue = element.otherValue.trim();
+				const otherValueLength = otherValue.length;
+
+				elementIsValid = elementIsValid && true;
+				pageIsValid = pageIsValid && true;
+
+				if (element.otherIsSelected && element.isRequired && otherValueLength <= 0) {
+					elementIsValid = false;
+					pageIsValid = false;
+					errorText = element.requiredErrorText || 'Пожалуйста, ответьте на вопрос';
+				
+				}
+	
+			}
+
+			if (element.isRequired && inputValueLength <= 0) {
+				if (element.otherIsSelected && element.otherValue.trim().length > 0) {
+					return;
+				}
+
+				elementIsValid = false;
+				pageIsValid = false;
+				errorText = element.requiredErrorText || 'Пожалуйста, ответьте на вопрос';
+			
+			}
+
 			element.isValid = elementIsValid;
 			element.errorText = errorText;
 		});
 
-		page.isValid = pageIsValid;
-	}
-
-	saveUnswersToLocalStorage() {
-		window.localStorage.setItem('savedPages', JSON.stringify(this.pages))
+		this.currentPage.isValid = pageIsValid;
 	}
 }

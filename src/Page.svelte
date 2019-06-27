@@ -1,5 +1,5 @@
 {#if page && Object.keys(page).length > 0}
-	<div class="page" >
+	<form on:submit|preventDefault class="page" >
 		{#if !page.titleHidden}
 			<h2 class="page__title">{page.title}</h2>
 		{/if}
@@ -11,18 +11,18 @@
 						{#each element.choices as choice, choiceIndex (choice.value || choice)}
 							<div class="input-group">
 								<input
-									id={element.id + (choice.value || choice)}
+									id={element.id + (choice.value || choice).split(' ').join('-')}
 									class="input-group__input"
 									type="radio"
 									name={element.name}
 									value={choice.value || choice}
 									bind:group={element.value}
-									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+									on:change={(e) => (toggleSelectOther(e, element), hideError(element))}
 								/>
 
-								<label for={element.id + (choice.value || choice)} class="input-group__label">
+								<label for={element.id + (choice.value || choice).split(' ').join('-')} class="input-group__label" tabindex="0">
 									<span class="input-group__fake-input input-group__fake-input--radio" />
-									<span class="input-group__text">{ choice.value || choice }</span>
+									<span class="input-group__text">{ choice.name || choice }</span>
 								</label>
 							</div>
 						{/each}
@@ -36,10 +36,10 @@
 									value={element.name + '-other'}
 									name={element.name}
 									bind:group={element.value}
-									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+									on:change={(e) => (toggleSelectOther(e, element), hideError(element))}
 								/>
 
-								<label for={element.name + '-other'} class="input-group__label">
+								<label for={element.name + '-other'} class="input-group__label" tabindex="0">
 									<span class="input-group__fake-input input-group__fake-input--radio" />
 									<span class="input-group__text">{ element.otherText || 'Другое' }</span>
 								</label>
@@ -48,6 +48,7 @@
 									class="input-group__textarea input-group__textarea--other"
 									name={element.name + '-other'}
 									bind:value={element.otherValue}
+									tabindex={element.otherIsSelected ? "0" : "-1"}
 								/>
 							</div>
 
@@ -58,18 +59,18 @@
 						{#each element.choices as choice, choiceIndex (choice.value || choice)}
 							<div class="input-group">
 								<input
-									id={element.id + (choice.value || choice)}
+									id={element.id + (choice.value || choice).split(' ').join('-')}
 									class="input-group__input"
 									type="checkbox"
 									value={choice.value || choice}
 									name={element.name}
 									bind:group={element.value}
-									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+									on:change={(e) => (toggleSelectOther(e, element), hideError(element))}
 								/>
 
-								<label for={element.id + (choice.value || choice)} class="input-group__label">
+								<label for={element.id + (choice.value || choice).split(' ').join('-')} class="input-group__label" tabindex="0">
 									<span class="input-group__fake-input input-group__fake-input--checkbox" />
-									<span class="input-group__text">{ choice.value || choice }</span>
+									<span class="input-group__text">{ choice.name || choice }</span>
 								</label>
 							</div>
 						{/each}
@@ -83,10 +84,10 @@
 									value={element.name + '-other'}
 									name={element.name}
 									bind:checked={element.otherIsSelected}
-									on:input={(e) => (toggleSelectOther(e, element), hideError(element))}
+									on:change={(e) => hideError(element)}
 								/>
 
-								<label for={element.name + '-other'} class="input-group__label">
+								<label for={element.name + '-other'} class="input-group__label" tabindex="0">
 									<span class="input-group__fake-input input-group__fake-input--checkbox" />
 									<span class="input-group__text">{ element.otherText || 'Другое' || ''}</span>
 								</label>
@@ -94,6 +95,7 @@
 									class="input-group__textarea input-group__textarea--other"
 									name={element.name + '-other'}
 									bind:value={element.otherValue}
+									tabindex={element.otherIsSelected ? "0" : "-1"}
 								/>
 							</div>
 						{/if}
@@ -107,18 +109,19 @@
 							class="input-group__textarea"
 							name={element.name}
 							bind:value={element.value}
+							tabindex="0"
 						/>
 
 					{:else}
-						<Input element={element}/>
-					
+						<Input element={element} />
+
 					{/if}
 
 
 				</div>
 			{/each}
 		</div>
-	</div>
+	</form>
 {/if}
 
 
@@ -138,7 +141,7 @@
 			dateFormat: "d.m.Y",
 			maxDate: "today",
 			disableMobile: true,
-			}).setDate('14.05.2013');
+			})
 		}
 	});
 
@@ -147,12 +150,11 @@
 	}
 
 	function toggleSelectOther (e, element) {
-		if (e.target.value === element.name + '-other') {
+		if (e.target.value === element.name + '-other' && e.target.type === 'radio') {
 			element.otherIsSelected = true;
 			
 		}
 
-		console.log(e.target.type)
 		if (e.target.value !== element.name + '-other' && e.target.type === 'radio') {
 			element.otherIsSelected = false;
 		
@@ -178,6 +180,7 @@
 	.page__title {
 		margin: 0;
 		line-height: 1.4;
+		font-weight: 800;
 	}
 
 	.input-group__input {
@@ -185,7 +188,7 @@
   	}
 
 	.input-group {
-   		margin-bottom: 4px;
+   		margin-bottom: 8px;
 	}
 
 	.input-group__label {
@@ -201,7 +204,7 @@
 		margin-right: 6px;
 		border: 1px solid #4570ff;
 		flex-shrink: 0;
-		margin-top: 5px;
+		margin-top: 7px;
 	}
 
 	.input-group__fake-input--checkbox {
@@ -269,19 +272,22 @@
 	.input-group__textarea {
 		width: 100%;
 		height: 150px;
+		padding: 6px 10px;
+		line-height: 1.55;
 		resize: none;
 		overflow: auto;
 	}
 
 	.input-group__textarea.input-group__textarea--other {
-		resize: none;
 		width: 100%;
 		height: 0;
 		opacity: 0;
-		transition: transform 0.3s, opacity 0.3s, height 0.2s ease;
-		transform: scale(-1);
+		margin-top: 4px;		
+		resize: none;
 		overflow: hidden;
-		will-change: transform, opacity, height
+		transform: scale(-1);
+		will-change: transform, opacity, height;
+		transition: transform 0.3s, opacity 0.3s, height 0.2s ease;
 	}
 
 	.input-group__input:checked ~ .input-group__textarea.input-group__textarea--other {
@@ -290,5 +296,25 @@
 		overflow: auto;
 		transform: scale(1);
 	}
+
+	@media only screen and (max-width: 810px) {
+		.page__title {
+			font-size: 28px;
+		}
+	}
+	
+	@media only screen and (max-width: 480px) {
+		.page__title {
+			font-size: 20px;
+		}
+
+		.input-group {
+			font-size: 17px;
+		}
+
+		.input-group__fake-input {
+			margin-top: 5px;
+		}
+    }
 </style>
 

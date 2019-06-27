@@ -1,15 +1,15 @@
 {#if survey }
-    <button on:click={() => console.log(survey)}>click</button>
-    <button on:click={getAnswers}>click</button>
+    <!-- <button on:click={() => console.log(survey)}>click</button>
+    <button on:click={() => console.log(survey.userAnswersAdvancedOption)}>click</button>
     <button on:click={() => console.log(currentPage, currentPageNum)}>get current page</button>
     
-    <select style="width: 100%" bind:value={currentPageNum} on:change={() => {survey.currentPageNum = currentPageNum; currentPage = survey.currentPage;  survey.surveyIsStarted = true; progress.set(survey.progress)}}>
+    <select style="width: 100%" bind:value={survey.currentPageNum} on:change={onChangePage}>
         {#each survey.config.pages as page, index}
             <option value={index}>
                 {page.title}
             </option>
         {/each}
-    </select>
+    </select> -->
 
     {#if survey.surveyIsStarted}
         <Progressbar 
@@ -17,59 +17,61 @@
             { currentPageNum } 
             { progress }
         />
+    
     {/if}
 
     {#if visible}
-        <div class="survey">
-            <div 
-                transition:fade
-                on:outroend={() => visible = true}
-            >
-                {#if survey && surveyIsFinished === false}
-                    <Page page={currentPage} />
+        <div 
+            class="survey"                 
+            transition:fade={{duration: 350}}
+            on:outroend={() => visible = true}
+        >
+            {#if survey}
+                <Page page={currentPage} />
 
-                    <div class="survey__bottom">
+                <div class="survey__bottom">
 
-                        {#if survey.config.firstPageIsStarted && currentPageNum === 0}
-                            <Button  className="survey__bottom-btn" onClick={onStartSurvey} text={ survey.config.startButtonText || 'Начать' } />           
-                        
-                        {:else}
-                            {#if currentPageNum > 1}
-                                <Button className="btn--gradient-left" onClick={onPrevPage} text="Назад" />           
-                            {/if}
-
-                            {#if currentPageNum !== survey.amountPages}
-                                <Button onClick={onNextPage} text="Далее" />           
-                            {/if}
-
-                            {#if currentPageNum === survey.amountPages}
-                                <Button onClick={onFinishSurvey} text={survey.config.completeButtonText || 'Закончить'} />           
-                            {/if}
+                    {#if survey.config.firstPageIsStarted && currentPageNum === 0}
+                        <Button  className="survey__bottom-btn" onClick={onStartSurvey} >{ survey.config.startButtonText || 'Начать' }</Button>           
                     
+                    {:else}
+                        {#if currentPageNum > 1}
+                            <Button className="btn--gradient-left negative" onClick={onPrevPage}>Назад</Button>           
                         {/if}
-                    </div>
 
-                {:else}
-                    <div>
-                        {#each survey.userAnswersAdvancedOption as question (question.title)}
+                        {#if currentPageNum !== survey.amountPages}
+                            <Button onClick={onNextPage} >Далее</Button>           
+                        {/if}
+
+                        {#if currentPageNum === survey.amountPages}
+                            <Button onClick={onFinishSurvey} >{ survey.config.completeButtonText || 'Закончить' }</Button>          
+                        {/if}
+                
+                    {/if}
+                </div>
+
+            <!-- {:else}
+                <div>
+                    {#each survey.userAnswersAdvancedOption as question (question.title)}
+                        <ul>
+                            <li>{ question.title }</li>
                             <ul>
-                                <li>{ question.title }</li>
-                                <ul>
-                                    {#each question.answers as answer (answer.valueName)}
-                                        {#if question.title.includes('Введите свои персональные данные')}
-                                            <li>{answer.valueName} : {answer.value}</li>
+                                {#each question.answers as answer (answer.valueName)}
+                                    
+                                    {#if question.title.includes('Введите свои персональные данные')}
+                                        <li>{answer.valueName} : {answer.value}</li>
 
-                                        {:else}
-                                                <li>{answer.value}</li>
-                                        {/if}
-                                        
-                                    {/each}
-                                </ul>
+                                    {:else}
+                                        <li>{answer.value}</li>
+                                    
+                                    {/if}
+                                    
+                                {/each}
                             </ul>
-                        {/each}
-                    </div>
-                {/if}
-            </div>
+                        </ul>
+                    {/each}
+                </div> -->
+            {/if}
         </div>
     {/if}
 
@@ -84,14 +86,18 @@
     import { fade } from 'svelte/transition';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
+    
     import { Questionary } from './QuestionatyModel.js';
 
-    import Loader from './Loader';
+    import Loader from './components/Loader';
     import Button from './components/Button';
     import Progressbar from './components/Progressbar.svelte';
     import Page from './Page';
 
     export let survey = null;
+    export let callbackAfterChangePage; 
+    export let callbackFinishSurvey; 
+
     let progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -102,23 +108,64 @@
     let visible = false;
     let surveyIsFinished = false;
 
+    onMount(() => {
+        
+        document.addEventListener('keydown', function (e)  {
+            if ( (e.which == 13 || e.keyCode == 13) && e.target.type !== 'textarea'  && e.target.tagName !== 'LABEL' && e.target.tagName !== 'BUTTON' ) {
+                onNextPage();
+            }
+
+            if ((e.which == 13 || e.keyCode == 13) && e.target.tagName === 'LABEL') {
+                e.target.click()
+            }
+        
+        });
+    
+    })
+
     afterUpdate(() => {
+        
         if (survey !== null && currentPage === null) {
             currentPage = survey.currentPage;
             visible = true;
-        } 
-        if (survey !== null && currentPageNum === null) {
+        }
+
+        if (survey !== null) {
+            currentPage = survey.currentPage;
             currentPageNum = survey.currentPageNum;
+            progress.set(survey.progress);
         }
     });
 
+
     function onNextPage () {
-        survey.onNextPage(() => {
-            visible = false;
-        });
+        survey.onNextPage(
+            (config) => {
+                visible = false;
+                callbackAfterChangePage(config);
+                progress.set(survey.progress);
+
+            }, 
+            () => {
+                setTimeout(() => {
+                    
+                    const inputWithError = document.querySelector('.hasError');
+                    if (inputWithError) inputWithError.focus();
+               
+               }, 0)
+
+
+            }
+        );
+
         currentPage = survey.currentPage;
-        currentPageNum = survey.currentPageNum;
-        progress.set(survey.progress);
+    }
+
+    function onChangePage () {     
+        currentPage = survey.currentPage; 
+        survey.surveyIsStarted = true;
+        progress.set(survey.progress)
+
     }
 
     function onPrevPage () {
@@ -126,42 +173,30 @@
             visible = false;
         });
         currentPage = survey.currentPage;
-        currentPageNum = survey.currentPageNum;
         progress.set(survey.progress);
-    }
-
-    function getAnswers () {
-        console.log(survey.userAnswersAdvancedOption )
     }
 
     function onStartSurvey() {
         survey.onStartSurvey(() => {
             visible = false;
         });
-        currentPageNum = survey.currentPageNum;
         currentPage = survey.currentPage;
-       progress.set(survey.progress);
+        progress.set(survey.progress);
     }
 
     function onFinishSurvey() {
-        survey.onFinishSurvey(() => console.log('finish'));
+        survey.onFinishSurvey(
+            callbackFinishSurvey
+        );
+        
         surveyIsFinished = survey.surveyIsFinished;
+        
         return;
     }
 
 </script>
 
 <style>
-    .survey {
-        /* font-size: 18px;
-        line-height: 1.72; */
-        box-sizing: border-box;
-    }
-
-    .survey * {
-        box-sizing: border-box;
-    }
-
     .survey__bottom {
         margin-top: 20px;
         display: flex;

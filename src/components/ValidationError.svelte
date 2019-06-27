@@ -18,4 +18,15 @@
         background-color: #eb4d4b;
     }
 
+    @media only screen and (max-width: 480px) {
+         .error {
+            font-size: 15px;
+            padding: 6px 10px;
+        }
+    }
+
+
+
+
+
 </style>
