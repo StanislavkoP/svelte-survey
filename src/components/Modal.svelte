@@ -14,7 +14,7 @@
 
 <script>
     import { fade } from 'svelte/transition';
-    import Button from './Button';
+    import Button from './Button.svelte';
 
     export let isShowed = false;
     export let showCloseIcon = false;

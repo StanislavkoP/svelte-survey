@@ -89,10 +89,10 @@
     
     import { Questionary } from './QuestionatyModel.js';
 
-    import Loader from './components/Loader';
-    import Button from './components/Button';
+    import Loader from './components/Loader.svelte';
+    import Button from './components/Button.svelte';
     import Progressbar from './components/Progressbar.svelte';
-    import Page from './Page';
+    import Page from './Page.svelte';
 
     export let survey = null;
     export let callbackAfterChangePage; 

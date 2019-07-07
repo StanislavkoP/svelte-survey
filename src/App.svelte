@@ -71,11 +71,11 @@
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
 
-    import Header from './Header';
-    import Modal from './components/Modal';
-    import Loader from './components/Loader';
-    import Button from './components/Button';
-    import QuestionaryComponent from './Questionary';
+    import Header from './Header.svelte';
+    import Modal from './components/Modal.svelte';
+    import Loader from './components/Loader.svelte';
+    import Button from './components/Button.svelte';
+    import QuestionaryComponent from './Questionary.svelte';
 	import { Questionary } from './QuestionatyModel.js'
 	
     let surveyConfig = null;

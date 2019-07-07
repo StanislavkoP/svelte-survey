@@ -131,7 +131,7 @@
 	import { fade } from "svelte/transition";
 
 	import Input from './components/Input.svelte';
-	import ValidationError from './components/ValidationError';
+	import ValidationError from './components/ValidationError.svelte';
 
 	export let page = null;
 
