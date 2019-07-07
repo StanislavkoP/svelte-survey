@@ -126,9 +126,10 @@
 
 
 <script>
-	import flatpickr from "flatpickr";
+	import flatpickr from "flatpickr/dist/flatpickr";
 	import { onMount, afterUpdate } from "svelte";
 	import { fade } from "svelte/transition";
+
 	import Input from './components/Input.svelte';
 	import ValidationError from './components/ValidationError';
 

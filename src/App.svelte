@@ -62,7 +62,7 @@
 
         <div class="modal__content-btns">
             <Button onClick={ startOverSurvey } className="modal__content-btn  negative">Начать заново</Button>
-            <Button onClick={() => showModal = false} className="modal__content-btn">Продолжить</Button>
+            <Button onClick={ continueSurvey } className="modal__content-btn">Продолжить</Button>
         </div>
     </div>
 </Modal>
@@ -87,8 +87,6 @@
     let loadingRequest = false;
     let failedRequest = false;
     let surveyResults = null;
-
-    $: document.title = document.title + ' ' + nameVacancy;
 
     onMount(() => {
         
@@ -119,9 +117,46 @@
                 nameVacancy = "мастера-универсала";
                 fullNameVacancy = "Мастер-универсал";
                 break;
+            
+            case 'elektromon' : 
+                nameVacancy = "электромонтажника";
+                fullNameVacancy = "Электромонтажник";
+                break;
+            
+            case 'santehnik' : 
+                nameVacancy = "сантехника";
+                fullNameVacancy = "Сантехник";
+                break;
+            
+            case 'operator' : 
+                nameVacancy = "оператора на телефоне";
+                fullNameVacancy = "Оператор на телефоне";
+                break;
+            
+            case 'smetchik' : 
+                nameVacancy = "сметчика";
+                fullNameVacancy = "Сметчик";
+                break;
+            
+            case 'hr' : 
+                nameVacancy = "специалиста по подбору персонала";
+                fullNameVacancy = "HR-менеджер";
+                break;
+           
+            case 'universal-gkl' : 
+                nameVacancy = "специалиста по ГКЛ/Гипсокартонщика/Отделочника/Мастера универсала";
+                fullNameVacancy = "Специалист по ГКЛ/Гипсокартонщик/Отделочник/Мастер-универсал";
+                break;
+           
+            case 'sales' : 
+                nameVacancy = "менеджера по продажам";
+                fullNameVacancy = "Менеджер по продажам";
+                break;
            
            default: return;
-        }
+        };
+
+        document.title = document.title + ' ' + nameVacancy;
 
         const twoGeneralPages = [
             {
@@ -283,7 +318,6 @@
                     const savedSurvey = JSON.parse(window.localStorage.getItem('petrishinSurvey'));
                     
                     savedNameVacancy = savedSurvey.nameVacancy;
-                    
                     surveyConfig.config = savedSurvey.config;
                     surveyConfig.currentPageNum = savedSurvey.currentPageNum;
                     surveyConfig.surveyIsFinished = savedSurvey.surveyIsFinished;
@@ -318,9 +352,12 @@
         localStorage.removeItem('petrishinSurvey');
         
         showModal = false;
-        nameVacancy = savedNameVacancy;
     };
     
+    function continueSurvey() {
+        nameVacancy = savedNameVacancy;
+        showModal = false;
+    };
 
     function requestWithResults (data) {
         fetch("form/vacancy.php", {
