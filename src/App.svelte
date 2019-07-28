@@ -152,6 +152,26 @@
                 nameVacancy = "менеджера по продажам";
                 fullNameVacancy = "Менеджер по продажам";
                 break;
+
+            case 'stazher' : 
+                nameVacancy = "стажера";
+                fullNameVacancy = "Стажер";
+                break;
+
+            case 'office-man' : 
+                nameVacancy = "офис-менеджера";
+                fullNameVacancy = "Офис-менеджер";
+                break;
+
+            case 'pom-buh' : 
+                nameVacancy = "заместителя главного бухгалтера";
+                fullNameVacancy = "Помощник бухгалтера";
+                break;
+
+            case 'designer' : 
+                nameVacancy = "дизайнера";
+                fullNameVacancy = "Дизайнер";
+                break;
            
            default: return;
         };
